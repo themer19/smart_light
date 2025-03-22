@@ -140,6 +140,7 @@ function Cr_compte() {
                 placeholder="CIN"
                 value={formData.cin}
                 onChange={handleChange}
+
                 className="form-control form-control-lg bg-light fs-6"
                 required
               />
@@ -156,6 +157,7 @@ function Cr_compte() {
                 type="date"
                 name="dateOfBirth"
                 value={formData.dateOfBirth}
+                placeholder="Entre votre Prénom"
                 onChange={handleChange}
                 className="form-control form-control-lg bg-light fs-6"
                 required

@@ -1,0 +1,74 @@
+body {
+    font-family: 'Poppins', sans-serif; 
+    background-image: url('/src/assets/blan.jpg'); 
+    background-size: cover; 
+    background-position: center; 
+    display: flex;
+    flex-direction: column; /* Permet d'empiler les éléments verticalement */
+    align-items: center; /* Centre horizontalement */
+    justify-content: center; /* Aligne au début */
+    min-height: 100vh; /* Assure que le body couvre la hauteur de la fenêtre */
+    margin: 0; 
+    overflow-y: auto; /* Permet le défilement vertical */
+}
+
+.titre {
+    font-size: 50px !important;
+    font-family: 'Brush Script MT', 'Brush Script Std';
+    text-align: center; /* Centre le texte */
+    margin: 20px 0; /* Espace autour du titre */
+    width: 100%; /* Prend toute la largeur */
+    z-index: 1000; /* Assure que le titre est au-dessus des autres éléments */
+    padding: 10px 0; /* Ajoute du padding en haut et en bas */
+}
+
+.content {
+    background-color: rgba(255, 255, 255, 0.8); /* Blanc avec 80% d'opacité */
+    border-radius: 30px; /* Réduit le rayon pour un look plus moderne */
+    position: relative;
+    overflow: hidden;
+    width: 90%; /* Utilise une largeur responsive */
+    max-width: 600px; /* Limite la largeur à 600px pour les grands écrans */
+    min-height: 500px; /* Hauteur minimale */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombre */
+    margin: 20px 0; /* Ajoute un espacement vertical */
+    padding: 20px; /* Padding pour un espacement intérieur */
+}
+
+.verification-code {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.code-input {
+    border: 1px solid #ccc; /* Bordure grise claire */
+    border-radius: 4px;
+    font-size: 24px; /* Taille de la police */
+    text-align: center;
+    width: 40px; /* Fixe la largeur des champs d'entrée */
+    height: 50px; /* Fixe la hauteur des champs d'entrée */
+    margin: 0 5px; /* Ajoute de l'espacement entre les champs */
+    caret-color: #1aff00;
+}
+
+.code-input:focus {
+    border-color: #1aff00; /* Couleur de bordure lorsqu'il est actif (ici, bleu) */
+    outline: none; /* Supprime le contour par défaut */
+}
+.content button
+  {
+    background-color: #03e706;
+    color: #fff;
+    padding: 10px 10px;
+    border: 1px  solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+  .btn:hover
+  {
+    background-color: #fffb00;
+  }

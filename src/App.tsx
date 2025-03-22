@@ -1,12 +1,12 @@
 import { BrowserRouter,Routes,Route } from "react-router-dom"
 import Login from './pages/Login'
-import Cr_compte from'./pages/Cr_compte'
+import Validationuser from './pages/Validationuser'
 function App() {
   return (
     <>
     <BrowserRouter>
     <Routes>
-      <Route path="/" element={<Login/>}>
+      <Route path="/" element={<Validationuser/>}>
       </Route>
     </Routes>
     </BrowserRouter>

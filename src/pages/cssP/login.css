@@ -1,6 +1,6 @@
 body {
     font-family: 'Poppins', sans-serif; 
-    background-image: url('../assets/blan.jpg'); /* Chemin vers l'image */
+    background-image: url('/src/assets/blan.jpg'); /* Chemin vers l'image */
     background-size: cover; /* Couvre tout le corps */
     background-position: center; /* Centre l'image */
     display: flex;
