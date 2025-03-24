@@ -4,10 +4,66 @@ import hommeImage from "../assets/homme.png";
 import hommeImage2 from "../assets/ajouter-un-utilisateur.png";
 import { Mail, User, Lock, Calendar, Phone, IdCard } from "lucide-react";
 import { Tooltip } from "react-tooltip";
-
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 function Login() {
   const [isActive, setIsActive] = useState(true);
-
+  const navigate = useNavigate();
+  const [loginData, setLoginData] = useState({ email: "", motDePasse: "" });
+  const [registerData, setRegisterData] = useState({
+    nom: "",
+    prenom: "",
+    email: "",
+    motDePasse: "",
+    dateDeNaissance: "",
+    genre: "",
+    numéroDeTéléphone: "",
+    cin: "",
+  });
+  const [message, setMessage] = useState("");
+  const handleChange = (e, type) => {
+    if (type === "login") {
+      setLoginData({ ...loginData, [e.target.name]: e.target.value });
+    } else {
+      setRegisterData({ ...registerData, [e.target.name]: e.target.value });
+    }
+  };
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    console.log(loginData);
+    try {
+      const response = await axios.post("http://localhost:5000/api/users/login", JSON.stringify(loginData), {
+        headers: {
+            'Content-Type': 'application/json', // Indique que les données envoyées sont au format JSON
+        },
+    });
+      setMessage("Connexion réussie !");
+      console.log(response.data);
+      // Stocker le token dans le localStorage si besoin
+      localStorage.setItem("token", response.data.token);
+    } catch (error) {
+      setMessage("Erreur de connexion. Vérifiez vos identifiants.");
+    }
+    
+  };
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    console.log(registerData);
+    try {
+      const response = await axios.post("http://localhost:5000/api/users/code", {
+        email: registerData.email // Encapsulez l'e-mail dans un objet
+    }, {
+        headers: {
+            'Content-Type': 'application/json', // Indiquez que le corps est en JSON
+        },
+    });
+      setMessage("Inscription réussie !");
+      navigate("/validation", { state: { Data: registerData } });
+      console.log(response.data);
+    } catch (error) {
+      setMessage("Erreur lors de l'inscription. Vérifiez vos informations.");
+      console.error("Erreur d'inscription:", error);
+    }};
   return (
     <div>
       <div className="titre">
@@ -30,8 +86,11 @@ function Login() {
               </span>
               <input
                 type="email"
+                name="email"
                 placeholder="E-mail"
+                onChange={(e) => handleChange(e, "login")}
                 className="form-control form-control-lg bg-light fs-6"
+                required
               />
             </div>
             <div className="input-group mb-3">
@@ -40,8 +99,11 @@ function Login() {
               </span>
               <input
                 type="password"
+                name="motDePasse"
                 placeholder="Mot de passe"
+                onChange={(e) => handleChange(e, "login")}
                 className="form-control form-control-lg bg-light fs-6"
+                required
               />
             </div>
             <div className="input-group mb-5 d-flex justify-content-center">
@@ -79,6 +141,7 @@ function Login() {
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.backgroundColor = "#03e706")
                 } // Couleur par défaut
+                onClick={handleLogin}
               >
                 Connexion
               </button>
@@ -108,6 +171,8 @@ function Login() {
                 <input
                   type="text"
                   placeholder="Nom"
+                  name="nom"
+                  onChange={(e) => handleChange(e, "register")}
                   className="form-control form-control-lg bg-light fs-6"
                 />
               </div>
@@ -118,6 +183,8 @@ function Login() {
                 <input
                   type="text"
                   placeholder="Prénom"
+                  name="prenom"
+                  onChange={(e) => handleChange(e, "register")}
                   className="form-control form-control-lg bg-light fs-6"
                 />
               </div>
@@ -128,6 +195,8 @@ function Login() {
                 <input
                   type="email"
                   placeholder="E-mail"
+                  name="email"
+                  onChange={(e) => handleChange(e, "register")}
                   className="form-control form-control-lg bg-light fs-6"
                 />
               </div>
@@ -137,7 +206,9 @@ function Login() {
                 </span>
                 <input
                   type="password"
+                  name="motDePasse"
                   placeholder="Mot de passe"
+                  onChange={(e) => handleChange(e, "register")}
                   className="form-control form-control-lg bg-light fs-6"
                 />
               </div>
@@ -166,7 +237,9 @@ function Login() {
                   </span>
                   <input
                     type="date"
+                    name="dateDeNaissance"
                     className="form-control form-control-lg bg-light fs-6"
+                    onChange={(e) => handleChange(e, "register")}
                     aria-label="Date de naissance"
                   />
                 </div>
@@ -178,8 +251,10 @@ function Login() {
                 </span>
                 <input
                   type="tel"
+                  name="numéroDeTéléphone"
                   placeholder="Numéro de téléphone"
                   className="form-control form-control-lg bg-light fs-6"
+                  onChange={(e) => handleChange(e, "register")}
                 />
               </div>
               <div className="input-group mb-3">
@@ -190,11 +265,27 @@ function Login() {
                 <input
                   type="text"
                   placeholder="CIN"
+                  name="cin"
                   className="form-control form-control-lg bg-light fs-6"
                   maxLength={8} // Limite la longueur à 8 caractères
                   aria-label="CIN"
+                  onChange={(e) => handleChange(e, "register")}
                 />
               </div>
+              <div className="input-group mb-3">
+  <span className="input-group-text bg-light">
+    <User size={20} /> 
+  </span>
+  <select
+    name="genre"
+    onChange={(e) => handleChange(e, "register")}
+    className="form-control form-control-lg bg-light fs-6"
+  >
+    <option value="">Choisissez genre</option>
+    <option value="homme">Homme</option>
+    <option value="femme">Femme</option>
+  </select>
+</div>
               <div className="input-group mb-3 justify-content-center">
                 <button
                   className="btn"
@@ -217,6 +308,7 @@ function Login() {
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.backgroundColor = "#03e706")
                   }
+                  onClick={handleRegister}
                 >
                   S'inscrire
                 </button>
@@ -225,7 +317,6 @@ function Login() {
           </form>
         </div>
 
-        {/*d'interface ou je change */}
         <div className="switch-content">
           <div className="switch">
             <div className="switch-panel switch-right">
@@ -253,11 +344,11 @@ function Login() {
                     height="30"
                     onClick={() => setIsActive(true)}
                     fill="currentColor"
-                    class="bi bi-arrow-bar-left"
+                    className="bi bi-arrow-bar-left"
                     viewBox="0 0 16 16"
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"
                     />
                   </svg>
