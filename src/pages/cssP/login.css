@@ -1,25 +1,27 @@
-body {
-    font-family: 'Poppins', sans-serif; 
-    background-image: url('/src/assets/blan.jpg'); /* Chemin vers l'image */
-    background-size: cover; /* Couvre tout le corps */
-    background-position: center; /* Centre l'image */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    height: 100vh;
-    margin: 0; /* Ajoute cette ligne pour enlever les marges par défaut du body */
-  }
+
+.login-page {
+  font-family: 'Poppins', sans-serif;
+  background-image: url('/src/assets/blan.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+}
+
 
   .content {
-    background-color: rgba(255, 255, 255, 0.8); /* Blanc avec 80% d'opacité */
+    background-color: rgba(255, 255, 255, 0.8); 
     border-radius: 80px; 
     position: relative;
     overflow: hidden;
     width: 50vw;
     min-height: 400px;
     max-width: 100%;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Optionnel : Ajout d'une ombre */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); 
   }
   .icon {
     max-width: 100px;  /* Limite la largeur maximale */

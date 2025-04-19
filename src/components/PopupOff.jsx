@@ -1,21 +1,17 @@
 import React from "react";
 import "./cssC/popup.css"; // Ajoutez des styles pour le pop-up
-import echeIcon from "../assets/success.png";
-
-const Popup = ({ message, onClose, onConfirm, isOpen }) => {
-  // Ne pas afficher le pop-up si isOpen est faux
-  if (!isOpen) return null;
-
+import successIcon from "../assets/effacer.png";
+const Popup = ({ message, onClose , onConfirm}) => {
   return (
     <div className="popup-overlay">
       <div className="popup-content">
         <span className="popup-close" onClick={onClose}>
           &times;
         </span>
-        <img src={echeIcon} alt="Succès" className="popup-icon" />
-        <h2>Succès</h2>
+        <img src={successIcon} alt="Succès" className="popup-icon" />
+        <h2>Échec</h2>
         <p>{message}</p>
-        <button className="popup-button" onClick={onConfirm}>
+        <button className="popup-button-off" onClick={onConfirm || onClose}>
           OK
         </button>
       </div>

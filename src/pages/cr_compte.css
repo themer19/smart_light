@@ -1,15 +1,3 @@
-body {
-    font-family: 'Poppins', sans-serif; 
-    background-image: url('../assets/back12.jpg'); /* Chemin vers l'image */
-    background-size: cover; /* Couvre tout le corps */
-    background-position: center; /* Centre l'image */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    height: 100vh;
-    margin: 0; /* Ajoute cette ligne pour enlever les marges par défaut du body */
-  }
 
   .content {
     background-color: rgba(255, 255, 255, 0.8); /* Blanc avec 80% d'opacité */

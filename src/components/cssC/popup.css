@@ -42,7 +42,17 @@
     font-size: 16px;
     font-weight: bold;
   }
-  
+  .popup-button-off {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #e70303;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+  }
   .popup-button:hover {
     background-color: #02c505;
   }

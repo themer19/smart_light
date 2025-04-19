@@ -1,16 +1,15 @@
-body {
-    font-family: 'Poppins', sans-serif; 
-    background-image: url('/src/assets/blan.jpg'); 
-    background-size: cover; 
-    background-position: center; 
+.validation-page {
+    font-family: 'Poppins', sans-serif;
+    background-image: url('/src/assets/blan.jpg');
+    background-size: cover;
+    background-position: center;
     display: flex;
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-    min-height: 100vh; 
-    margin: 0; 
-    overflow-y: auto; 
-}
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+  }
 
 .validation-content {
     background-color: rgba(255, 255, 255, 0.8);
@@ -62,3 +61,23 @@ body {
 .validation-btn:hover {
     background-color: #fffb00;
 }
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+  }
+  

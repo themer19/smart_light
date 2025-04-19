@@ -8,4 +8,5 @@ export default defineConfig({
     host: '0.0.0.0', // Accepte les connexions sur toutes les adresses IP
     port: 5173,      
   },
+  
 });
