@@ -1,211 +1,590 @@
-import React from 'react'
+import React, { useState, useEffect, useMemo } from 'react';
+import clsx from 'clsx';
 import Sidebar from '../components/Sidebar';
-import './cssP/test.css';
+import AddSiteModal from '../components/AddSiteModal';
+import EditSiteModal from '../components/EditSiteModal';
+import KnobPopup from '../components/KwhPop';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './cssP/Sites.css';
+import SiteDetailsModal from '../components/SiteDetailsModal';
+
 function Sites() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editSite, setEditSite] = useState(null);
+  const [kwhPopup, setKwhPopup] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [sites, setSites] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const sitesPerPage = 10;
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedSite, setSelectedSite] = useState(null);
+
+  const handleOpenDetails = (site) => {
+    setSelectedSite(site);
+    setDetailsModalOpen(true);
+  };
+  
+  const handleCloseDetails = () => {
+    setDetailsModalOpen(false);
+    setSelectedSite(null);
+  };
+  // Gestion de la responsivité
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Fetch sites with optimized geocoding
+  const fetchSites = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/site/allsite');
+      if (!response.ok) {
+        toast.error('Erreur lors du chargement des sites');
+        return;
+      }
+
+      const data = await response.json();
+      const sitesWithCity = await Promise.all(
+        data.map(async (site) => {
+          if (site.localisation?.latitude && site.localisation?.longitude) {
+            try {
+              const res = await fetch(
+                `https://api.opencagedata.com/geocode/v1/json?q=${site.localisation.latitude}+${site.localisation.longitude}&key=07388b5ec43e4f438eeb55f70311a79d`
+              );
+              const geo = await res.json();
+              const city =
+                geo.results[0]?.components?.city ||
+                geo.results[0]?.components?.town ||
+                geo.results[0]?.components?.village ||
+                'Ville inconnue';
+
+              return {
+                ...site,
+                localisation: {
+                  ...site.localisation,
+                  ville: city,
+                },
+              };
+            } catch (geoError) {
+              console.error('Erreur géocodage :', geoError);
+              return {
+                ...site,
+                localisation: {
+                  ...site.localisation,
+                  ville: 'Erreur géocodage',
+                },
+              };
+            }
+          }
+          return site;
+        })
+      );
+
+      setSites(sitesWithCity);
+    } catch (error) {
+      console.error('Erreur fetch :', error);
+      toast.error('Erreur serveur');
+    }
+  };
+
+  useEffect(() => {
+    fetchSites();
+  }, []);
+
+  // Handle search
+  const filteredSites = useMemo(() => {
+    return sites.filter(
+      (site) =>
+        site.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        site.localisation?.ville?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [sites, searchTerm]);
+
+  // Handle pagination
+  const totalPages = Math.ceil(filteredSites.length / sitesPerPage);
+  const paginatedSites = useMemo(() => {
+    const startIndex = (currentPage - 1) * sitesPerPage;
+    return filteredSites.slice(startIndex, startIndex + sitesPerPage);
+  }, [filteredSites, currentPage]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const handleOpenKwhPopup = () => {
+    setKwhPopup(false);
+    setTimeout(() => {
+      setKwhPopup(true);
+    }, 10);
+  };
+
+  const handleCloseKwhPopup = () => {
+    setKwhPopup(false);
+  };
+
+  const handleSaveSite = async (siteData) => {
+    if (!siteData.location || !siteData.location.lat || !siteData.location.lng) {
+      toast.error('La localisation est obligatoire (latitude et longitude)');
+      return;
+    }
+
+    const dataToSend = {
+      ...siteData,
+      localisation: {
+        latitude: siteData.location.lat,
+        longitude: siteData.location.lng,
+      },
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/api/site/site', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      if (response.ok) {
+        toast.success('Site créé avec succès !');
+        setIsModalOpen(false);
+        await fetchSites();
+      } else {
+        const errorData = await response.json();
+        toast.error(`❌ Erreur: ${errorData.message || 'Échec de l\'enregistrement du site'}`);
+      }
+    } catch (error) {
+      toast.error('🚨 Une erreur est survenue lors de la création du site');
+      console.error('Erreur:', error);
+    }
+  };
+
+  const handleEditSite = async (siteData) => {
+    if (!siteData.location || !siteData.location.lat || !siteData.location.lng) {
+      toast.error('La localisation est obligatoire (latitude et longitude)');
+      return;
+    }
+
+    const dataToSend = {
+      ...siteData,
+      localisation: {
+        latitude: siteData.location.lat,
+        longitude: siteData.location.lng,
+      },
+    };
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/site/sitemise/${editSite._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      if (response.ok) {
+        toast.success('Site modifié avec succès !');
+        setIsEditModalOpen(false);
+        setEditSite(null);
+        await fetchSites();
+      } else {
+        const errorData = await response.json();
+        toast.error(`❌ Erreur: ${errorData.message || 'Échec de la modification du site'}`);
+      }
+    } catch (error) {
+      toast.error('🚨 Une erreur est survenue lors de la modification du site');
+      console.error('Erreur:', error);
+    }
+  };
+
+  const handleDeleteSite = async (siteId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/site/sitedel/${siteId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setSites(sites.filter((site) => site._id !== siteId));
+        toast.success('Site supprimé avec succès !');
+      } else {
+        const errorData = await response.json();
+        toast.error(`❌ Erreur: ${errorData.message || 'Échec de la suppression du site'}`);
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error('🚨 Une erreur est survenue lors de la suppression du site');
+    }
+  };
+
+  const handleSidebarToggle = (isOpen) => {
+    setSidebarOpen(isOpen);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setCurrentPage(1);
+  };
+
+  const handleOpenEditModal = (site) => {
+    setEditSite(site);
+    setIsEditModalOpen(true);
+  };
+
   return (
-    <div className="gs-container">
-    <Sidebar />
-    <main className="gs-main-content">
-      <div className="gs-dashboard-card">
-        {/* Titre "Gestion des Sites" amélioré */}
-        <div className="gs-page-header">
-          <div className="gs-header-content">
-            <div className="gs-title-wrapper">
-              <div className="gs-title-icon-container">
-                <i className="ri-global-line gs-main-icon"></i>
-              </div>
-              <div>
-                <h1 className="gs-main-title">
-                  Gestion des Sites
-                  <span className="gs-title-underline"></span>
-                </h1>
-                <p className="gs-subtitle">Administrez l'ensemble de vos sites distants</p>
-              </div>
-            </div>
-            <button className="gs-add-site-btn gs-btn-primary">
-              <i className="ri-add-circle-line"></i>
-              <span>Nouveau site</span>
-            </button>
-          </div>
-        </div>
-        
-        {/* Titre "Liste des Sites" amélioré */}
-        <div className="gs-card-header">
-          <div className="gs-list-header-wrapper">
-            <div className="gs-list-title-container">
-              <i className="ri-table-2 gs-list-icon"></i>
-              <h2 className="gs-list-title">
-                Liste des Sites
-                <span className="gs-site-count">15 sites</span>
-              </h2>
-            </div>
-            <div className="gs-search-filter-container">
-              <div className="gs-search-box">
-                <i className="ri-search-line gs-search-icon"></i>
-                <input 
-                  type="text" 
-                  placeholder="Rechercher un site..." 
-                  className="gs-search-input"
-                />
-                <i className="ri-close-line gs-clear-icon"></i>
-              </div>
-              <div className="gs-filter-group">
-                <button className="gs-filter-btn gs-btn-secondary">
-                  <i className="ri-filter-3-line"></i>
-                  <span>Filtrer</span>
+    <div className="sites-page">
+      <div className="sm-container" style={{ display: 'flex', minHeight: '100vh' }}>
+        <Sidebar
+          onToggle={handleSidebarToggle}
+          className={clsx('sm-sidebar', {
+            'sm-sidebar-open': sidebarOpen,
+            'sm-sidebar-collapsed': !sidebarOpen,
+          })}
+        />
+        <main
+          className={clsx('sm-main-content', {
+            'sm-sidebar-collapsed': !sidebarOpen || isMobile,
+          })}
+          style={{
+            flex: 1,
+            marginLeft: 0,
+            paddingLeft: 0,
+            marginTop: '2rem',
+          }}
+        >
+          <div className="sm-dashboard-card">
+            <div className="sm-page-header">
+              <div className="sm-header-content">
+                <div className="sm-title-wrapper">
+                  <div className="sm-title-icon-container">
+                    <i className="ri-global-line sm-main-icon"></i>
+                  </div>
+                  <div>
+                    <h1 className="sm-main-title">
+                      Gestion des Sites
+                      <span className="sm-title-underline"></span>
+                    </h1>
+                    <p className="sm-subtitle">Administrez l'ensemble de vos sites distants</p>
+                  </div>
+                </div>
+                <button
+                  className="sm-add-site-btn sm-btn-primary"
+                  onClick={() => setIsModalOpen(true)}
+                  aria-label="Ajouter un nouveau site"
+                >
+                  <i className="ri-add-circle-line"></i>
+                  <span>Nouveau site</span>
                 </button>
-                <button className="gs-sort-btn gs-btn-secondary">
-                  <i className="ri-arrow-up-down-line"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="gs-table-responsive">
-          <table className="gs-sites-table">
-            <thead>
-              <tr>
-                <th>Nom du Site</th>
-                <th>Localisation</th>
-                <th>Status</th>
-                <th>Data</th>
-                <th>Dernière Mise à Jour</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-{[...Array(5)].map((_, i) => (
-  <tr key={i}>
-    <td>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <i className="ri-building-2-fill" style={{ 
-          color: '#4C51BF', 
-          marginRight: '8px',
-          fontSize: '1.2rem'
-        }} />
-        Site {i + 1}
-      </div>
-    </td>
-    
-    <td>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <i className="ri-map-pin-2-fill" style={{ 
-          color: '#F56565', 
-          marginRight: '8px',
-          cursor: 'pointer',
-          transition: 'transform 0.2s'
-        }} 
-        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        title={`Localisation: ${['Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille'][i]}`} />
-        {['Paris', 'Lyon', 'Marseille', 'Bordeaux', 'Lille'][i]}
-      </div>
-    </td>
-
-    <td>
-<div style={{ display: 'flex', alignItems: 'center' }}>
-  <i
-    className={`ri-${i % 2 === 0 ? 'flashlight-fill' : 'error-warning-fill'}`}
-    style={{
-      color: i % 2 === 0 ? '#48BB78' : '#E53E3E', // vert si actif, rouge si panne
-      marginRight: '8px',
-      fontSize: '1.2rem'
-    }}
+                {isModalOpen && (
+                  <AddSiteModal onClose={() => setIsModalOpen(false)} onSave={handleSaveSite} />
+                )}
+                {isEditModalOpen && (
+                  <EditSiteModal
+                    onClose={() => {
+                      setIsEditModalOpen(false);
+                      setEditSite(null);
+                    }}
+                    onSave={handleEditSite}
+                    initialData={editSite}
+                  />
+                )}
+                {detailsModalOpen && (
+  <SiteDetailsModal 
+    site={selectedSite} 
+    onClose={handleCloseDetails} 
   />
-  <span
-    style={{
-      padding: '0.25rem 0.75rem',
-      borderRadius: '9999px',
-      fontSize: '0.75rem',
-      fontWeight: 600,
-      backgroundColor: i % 2 === 0 ? '#C6F6D5' : '#FED7D7',
-      color: i % 2 === 0 ? '#22543D' : '#822727'
-    }}
-  >
-    {i % 2 === 0 ? 'Actif' : 'Panne'}
-  </span>
-</div>
-</td>
+)}
+              </div>
+            </div>
 
+            <div className="sm-card-header">
+              <div className="sm-list-header-wrapper">
+                <div className="sm-list-title-container">
+                  <i className="ri-table-2 sm-list-icon"></i>
+                  <h2 className="sm-list-title">
+                    Liste des Sites
+                    <span className="sm-site-count">{filteredSites.length} site(s)</span>
+                  </h2>
+                </div>
+                <div className="sm-search-filter-container">
+                  <div className="sm-search-box">
+                    <i className="ri-search-line sm-search-icon"></i>
+                    <input
+                      id="site-search"
+                      type="text"
+                      placeholder="Rechercher un site..."
+                      className="sm-search-input"
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                    />
+                    {searchTerm && (
+                      <i
+                        className="ri-close-line sm-clear-icon"
+                        onClick={handleClearSearch}
+                        aria-label="Effacer la recherche"
+                      ></i>
+                    )}
+                  </div>
+                  <div className="sm-filter-group">
+                    <button className="sm-btn-secondary" aria-label="Filtrer les sites">
+                      <i className="ri-filter-3-line"></i>
+                      <span>Filtrer</span>
+                    </button>
+                    <button
+                      className="sm-sort-btn sm-btn-secondary"
+                      aria-label="Trier les sites"
+                    >
+                      <i className="ri-arrow-up-down-line"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-    <td>
-      <i className="ri-database-2-fill" style={{ 
-        color: '#667EEA',
-        fontSize: '1.3rem',
-        cursor: 'pointer',
-        transition: 'transform 0.2s'
-      }} 
-      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-      title="Accéder aux données techniques" />
-    </td>
+            {isMobile ? (
+              <div className="sm-line-cards">
+                {paginatedSites.length > 0 ? (
+                  paginatedSites.map((site, i) => (
+                    <div className="sm-line-card" key={site._id}>
+                      <div className="sm-line-card-header">
+                        <div className="sm-line-card-title">
+                          <span className="sm-site-number">{(currentPage - 1) * sitesPerPage + i + 1}.</span>
+                          <i className="ri-building-2-fill" />
+                          <span>{site.nom}</span>
+                        </div>
+                      </div>
+                      <div className="sm-line-card-body">
+                        <div className="sm-line-card-item">
+                          <i className="ri-map-pin-2-fill" />
+                          <span>{site.localisation?.ville || 'Ville inconnue'}</span>
+                        </div>
+                        <div className="sm-line-card-item">
+                          <i
+                            className={`ri-${
+                              site.status === 'Actif'
+                                ? 'flashlight-fill'
+                                : site.status === 'Panne'
+                                ? 'error-warning-fill'
+                                : 'settings-3-fill'
+                            }`}
+                          />
+                          <span
+                            className={clsx('sm-status-badge', {
+                              active: site.status === 'Actif',
+                              inactive: site.status !== 'Actif',
+                            })}
+                          >
+                            {site.status}
+                          </span>
+                        </div>
+                        <div className="sm-line-card-item">
+                          <i
+                            className="ri-database-2-fill"
+                            onClick={handleOpenKwhPopup}
+                            title="Accéder aux données techniques"
+                            aria-label="Voir les données techniques"
+                          />
+                          <span>Data</span>
+                        </div>
+                        <div className="sm-line-card-item">
+                          <i className="ri-history-line" />
+                          <span>
+                            {new Date(site.derniereMiseAJour).toLocaleDateString('fr-FR')}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="sm-line-card-footer">
+                        <div className="sm-action-buttons">
+                          <button
+                            className="sm-action-btn edit"
+                            onClick={() => handleOpenEditModal(site)}
+                            aria-label={`Modifier le site ${site.nom}`}
+                          >
+                            <i className="ri-edit-line" />
+                          </button>
+                          <button
+                            className="sm-action-btn delete"
+                            onClick={() => handleDeleteSite(site._id)}
+                            aria-label={`Supprimer le site ${site.nom}`}
+                          >
+                            <i className="ri-delete-bin-line" />
+                          </button>
+                          <button
+                            className="sm-action-btn detail"
+                            title="Voir détails"
+                            aria-label={`Voir les détails du site ${site.nom}`}
+                          >
+                            <i className="ri-eye-line" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="sm-no-lines">Aucun site disponible.</div>
+                )}
+              </div>
+            ) : (
+              <div className="sm-table-responsive">
+                <table className="sm-lines-table">
+                  <thead>
+                    <tr>
+                      <th>Nom du Site</th>
+                      <th>Localisation</th>
+                      <th>Status</th>
+                      <th>Data</th>
+                      <th>Dernière Mise à Jour</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedSites.length > 0 ? (
+                      paginatedSites.map((site, i) => (
+                        <tr key={site._id}>
+                          <td>
+                            <div className="sm-line-name">
+                              <span className="sm-site-number">{(currentPage - 1) * sitesPerPage + i + 1}.</span>
+                              <i className="ri-building-2-fill" />
+                              <div>
+                                <span>{site.nom}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="sm-site-cell">
+                              <i className="ri-map-pin-2-fill" />
+                              {site.localisation?.ville || 'Ville inconnue'}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="sm-zone-cell">
+                              <i
+                                className={`ri-${
+                                  site.status === 'Actif'
+                                    ? 'flashlight-fill'
+                                    : site.status === 'Panne'
+                                    ? 'error-warning-fill'
+                                    : 'settings-3-fill'
+                                }`}
+                              />
+                              <span
+                                className={clsx('sm-status-badge', {
+                                  active: site.status === 'Actif',
+                                  inactive: site.status !== 'Actif',
+                                })}
+                              >
+                                {site.status}
+                              </span>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="sm-points-cell">
+                              <i
+                                className="ri-database-2-fill"
+                                onClick={handleOpenKwhPopup}
+                                title="Accéder aux données techniques"
+                                aria-label="Voir les données techniques"
+                              />
+                            </div>
+                          </td>
+                          <td>
+                            <div className="sm-points-cell">
+                              <i className="ri-history-line" />
+                              {new Date(site.derniereMiseAJour).toLocaleDateString('fr-FR')}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="sm-action-buttons">
+                              <button
+                                className="sm-action-btn edit"
+                                onClick={() => handleOpenEditModal(site)}
+                                aria-label={`Modifier le site ${site.nom}`}
+                              >
+                                <i className="ri-edit-line" />
+                              </button>
+                              <button
+                                className="sm-action-btn delete"
+                                onClick={() => handleDeleteSite(site._id)}
+                                aria-label={`Supprimer le site ${site.nom}`}
+                              >
+                                <i className="ri-delete-bin-line" />
+                              </button>
+                              <button
+  className="sm-action-btn detail"
+  onClick={() => handleOpenDetails(site)}
+  title="Voir détails"
+  aria-label={`Voir les détails du site ${site.nom}`}
+>
+  <i className="ri-eye-line" />
+</button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="6" className="sm-no-lines">
+                          Aucun site disponible.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
-    <td>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <i className="ri-history-line" style={{ 
-          color: '#718096',
-          marginRight: '8px'
-        }} />
-        2023-06-{10 + i}
-      </div>
-    </td>
-
-    <td>
-      <div className="gs-action-buttons" style={{ display: 'flex', gap: '0.5rem' }}>
-        <button style={{ 
-          background: 'none',
-          border: 'none',
-          color: '#4299E1',
-          cursor: 'pointer',
-          padding: '0.5rem',
-          borderRadius: '50%',
-          transition: 'all 0.2s'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#EBF8FF'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-          <i className="ri-edit-line" style={{ fontSize: '1.2rem' }} />
-        </button>
-        
-        <button style={{ 
-          background: 'none',
-          border: 'none',
-          color: '#F56565',
-          cursor: 'pointer',
-          padding: '0.5rem',
-          borderRadius: '50%',
-          transition: 'all 0.2s'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FFF5F5'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-          <i className="ri-delete-bin-line" style={{ fontSize: '1.2rem' }} />
-        </button>
-      </div>
-    </td>
-  </tr>
-))}
-</tbody>
-          </table>
-        </div>
-        
-        <div className="gs-table-footer">
-          <div className="gs-pagination-info">
-            Affichage 1-5 sur 15 sites
+            <div className="sm-table-footer">
+              <div className="sm-pagination-info">
+                Affichage {(currentPage - 1) * sitesPerPage + 1}-
+                {Math.min(currentPage * sitesPerPage, filteredSites.length)} sur{' '}
+                {filteredSites.length} site(s)
+              </div>
+              <div className="sm-pagination-controls">
+                <button
+                  className="sm-pagination-btn"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  aria-label="Page précédente"
+                >
+                  <i className="ri-arrow-left-s-line"></i>
+                </button>
+                <span>{currentPage}</span>
+                <button
+                  className="sm-pagination-btn"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  aria-label="Page suivante"
+                >
+                  <i className="ri-arrow-right-s-line"></i>
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="gs-pagination-controls">
-            <button className="gs-pagination-btn">
-              <i className="ri-arrow-left-s-line"></i>
-            </button>
-            <span>1</span>
-            <button className="gs-pagination-btn">
-              <i className="ri-arrow-right-s-line"></i>
-            </button>
-          </div>
-        </div>
+        </main>
+        {kwhPopup && <KnobPopup onClose={handleCloseKwhPopup} />}
+        <ToastContainer position="top-right" autoClose={3000} />
       </div>
-    </main>
-  </div>
-  )
+    </div>
+  );
 }
 
-export default Sites
+export default Sites;

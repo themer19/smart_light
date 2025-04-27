@@ -1,55 +1,57 @@
-/* =============== BASE LAYOUT =============== */
+/* Container */
 .gs-container {
-    display: flex;
-    min-height: 100vh;
-    background-color: #f5f7fa;
-    font-family: 'Nunito Sans', sans-serif;
-  }
-  .gs-period-btn.active {
-    background: #8b5cf6;
-    color: white;
-    border-color: #8b5cf6;
-  }
-  .gs-period-selector {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-  
-  .gs-period-btn {
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    background: white;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  .gs-update-time {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.875rem;
-    margin-left: 12px;
-  }
-  .gs-main-content {
-    flex: 1;
-    padding: 2rem;
-    margin-left: -60px;
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  font-family: 'Nunito Sans', sans-serif;
+}
+
+
+/* Main Content */
+.gs-main-content {
+  flex: 1;
+    padding: 1.5rem;
     margin-top: 60px;
     transition: margin-left 0.3s ease;
+}
+
+.gs-main-content.gs-sidebar-collapsed {
+  margin-left: 60px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .gs-sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .gs-sidebar.gs-sidebar-open {
+    transform: translateX(0);
+  }
+  
+  .gs-main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 1rem;
   }
   
   .gs-main-content.gs-sidebar-collapsed {
-    margin-left: 80px;
+    margin-left: 0;
   }
-  /* Styles pour l'en-tête principal */
+}
+
+/* =============== PAGE HEADER =============== */
+.gs-page-header {
+  margin-bottom: 1.5rem;
+}
+
 .gs-header-content {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
-  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .gs-title-wrapper {
@@ -123,6 +125,24 @@
   font-size: 1.25rem;
 }
 
+.gs-add-site-btn {
+  background: #03e706;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.gs-add-site-btn:hover {
+  background-color: #38a169;
+}
+
 /* En-tête de liste */
 .gs-list-header-wrapper {
   display: flex;
@@ -130,6 +150,8 @@
   align-items: center;
   width: 100%;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .gs-list-title-container {
@@ -170,6 +192,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .gs-search-box {
@@ -181,6 +204,8 @@
   padding: 0.5rem 1rem;
   border: 1px solid #e2e8f0;
   transition: all 0.2s;
+  flex: 1;
+  min-width: 200px;
 }
 
 .gs-search-box:focus-within {
@@ -198,7 +223,7 @@
   border: none;
   background: transparent;
   outline: none;
-  width: 200px;
+  flex: 1;
   font-size: 0.875rem;
   color: #1e293b;
 }
@@ -242,239 +267,347 @@
 .gs-sort-btn {
   padding: 0.5rem;
 }
-  /* =============== PAGE HEADER =============== */
-  .gs-page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+
+/* =============== DASHBOARD CARD =============== */
+.gs-dashboard-card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+/* =============== TABLE STYLES =============== */
+.gs-table-responsive {
+  overflow-x: auto;
+}
+
+.gs-sites-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.gs-sites-table th {
+  background-color: #f7fafc;
+  color: #4a5568;
+  font-weight: 600;
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.gs-sites-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #edf2f7;
+  color: #4a5568;
+}
+
+.gs-sites-table tr:hover {
+  background-color: #f8fafc;
+}
+
+.gs-table-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gs-table-cell i {
+  font-size: 1.2rem;
+}
+
+.gs-table-cell i.ri-building-2-fill {
+  color: #4c51bf;
+}
+
+.gs-table-cell i.ri-map-pin-2-fill {
+  color: #f56565;
+}
+
+.gs-table-cell i.ri-flashlight-fill {
+  color: #48bb78;
+}
+
+.gs-table-cell i.ri-error-warning-fill {
+  color: #e53e3e;
+}
+
+.gs-table-cell i.ri-settings-3-fill {
+  color: #3182ce;
+}
+
+.gs-table-cell i.ri-history-line {
+  color: #718096;
+}
+
+.gs-no-sites {
+  text-align: center;
+  padding: 20px;
+}
+
+/* =============== CARD STYLES (Mobile) =============== */
+.gs-site-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.gs-site-card {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+.gs-site-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.gs-site-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.gs-site-card-title i {
+  font-size: 1.2rem;
+  color: #4c51bf;
+}
+
+.gs-site-number {
+  font-weight: bold;
+}
+
+.gs-site-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.gs-site-card-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #4a5568;
+}
+
+.gs-site-card-item i {
+  font-size: 1.2rem;
+}
+
+.gs-site-card-item i.ri-map-pin-2-fill {
+  color: #f56565;
+}
+
+.gs-site-card-item i.ri-flashlight-fill {
+  color: #48bb78;
+}
+
+.gs-site-card-item i.ri-error-warning-fill {
+  color: #e53e3e;
+}
+
+.gs-site-card-item i.ri-settings-3-fill {
+  color: #3182ce;
+}
+
+.gs-site-card-item i.ri-database-2-fill {
+  color: #667eea;
+  cursor: pointer;
+}
+
+.gs-site-card-item i.ri-history-line {
+  color: #718096;
+}
+
+.gs-site-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
+/* =============== STATUS BADGES =============== */
+.gs-status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.gs-status-badge.active {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.gs-status-badge.inactive {
+  background-color: #fed7d7;
+  color: #822727;
+}
+
+/* =============== ACTION BUTTONS =============== */
+.gs-action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.gs-action-buttons button {
+  background: none;
+  border: none;
+  color: #718096;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.gs-action-buttons button:hover {
+  background-color: #edf2f7;
+}
+
+.gs-action-buttons button i {
+  font-size: 1.2rem;
+}
+
+.gs-action-buttons button i.ri-edit-line {
+  color: #4299e1;
+}
+
+.gs-action-buttons button i.ri-delete-bin-line {
+  color: #f56565;
+}
+
+.gs-action-buttons button i.ri-eye-line {
+  color: #4a5568;
+}
+
+/* =============== TABLE FOOTER =============== */
+.gs-table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  color: #718096;
+  font-size: 0.875rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.gs-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gs-pagination-btn {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  color: #4a5568;
+  transition: all 0.2s;
+}
+
+.gs-pagination-btn:hover {
+  background-color: #edf2f7;
+}
+
+/* =============== RESPONSIVE DESIGN =============== */
+@media (max-width: 1024px) {
+  .gs-main-content {
+    padding: 1.5rem;
   }
-  
-  .gs-page-header h1 {
-    font-size: 1.8rem;
-    color: #2d3748;
-    font-weight: 700;
-  }
-  
-  .gs-add-site-btn {
-    background-color: #03e706;;
-    color: white;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .gs-add-site-btn:hover {
-    background-color: #38a169;
-  }
-  
-  .gs-add-site-btn i {
-    font-size: 1.2rem;
-  }
-  
-  /* =============== DASHBOARD CARD =============== */
-  .gs-dashboard-card {
-    background: white;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
-    flex: 1;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-  }
-  
+
   .gs-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
-  
-  .gs-card-header h2 {
-    font-size: 1.3rem;
-    color: #4a5568;
+
+  .gs-search-box {
+    min-width: 100%;
   }
-  
-  .gs-search-filter {
-    position: relative;
-    width: 250px;
-  }
-  
-  .gs-search-filter input {
-    width: 100%;
-    padding: 0.5rem 1rem 0.5rem 2.5rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    font-size: 0.9rem;
-    transition: border-color 0.2s;
-  }
-  
-  .gs-search-filter input:focus {
-    outline: none;
-    border-color: #4299e1;
-  }
-  
-  .gs-search-filter i {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #a0aec0;
-  }
-  
-  /* =============== TABLE STYLES =============== */
-  .gs-table-responsive {
-    overflow-x: auto;
-  }
-  
-  .gs-sites-table {
-    width: 100%;
-  
-    border-collapse: collapse;
-    border: 10px solid #000000; /* 👈 Bordure autour du tableau */
-  border-radius: 0.5rem;      /* Coins arrondis */
-  overflow: hidden; 
-  }
-  
-  .gs-sites-table th {
-    background-color: #f7fafc;
-    color: #4a5568;
-    font-weight: 600;
-    text-align: left;
+}
+
+@media (max-width: 768px) {
+  .gs-main-content {
     padding: 1rem;
-    border-bottom: 1px solid #e2e8f0;
   }
-  
-  .gs-sites-table td {
-    padding: 1rem;
-    border-bottom: 1px solid #edf2f7;
-    color: #4a5568;
+
+  .gs-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
-  
-  .gs-sites-table tr:hover {
-    background-color: #f8fafc;
+
+  .gs-header-content {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
-  /* =============== STATUS BADGES =============== */
-  .gs-status-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
+
+  .gs-list-header-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
-  .gs-status-badge.active {
-    background-color: #c6f6d5;
-    color: #22543d;
+
+  .gs-search-filter-container {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  .gs-status-badge.inactive {
-    background-color: #fed7d7;
-    color: #822727;
+
+  .gs-filter-group {
+    justify-content: flex-start;
   }
-  
-  /* =============== ACTION BUTTONS =============== */
-  .gs-action-buttons {
-    display: flex;
-    gap: 0.5rem;
-  }
-  
-  .gs-edit-btn,
-  .gs-delete-btn {
-    background: none;
-    border: none;
-    color: #718096;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: all 0.2s;
-  }
-  
-  .gs-edit-btn:hover {
-    color: #3182ce;
-    background-color: #ebf8ff;
-  }
-  
-  .gs-delete-btn:hover {
-    color: #e53e3e;
-    background-color: #fff5f5;
-  }
-  
-  /* =============== TABLE FOOTER =============== */
+
   .gs-table-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e2e8f0;
-    color: #718096;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gs-main-title {
+    font-size: 1.5rem;
+  }
+
+  .gs-list-title {
+    font-size: 1.1rem;
+  }
+
+  .gs-btn-primary,
+  .gs-btn-secondary {
+    padding: 0.5rem 1rem;
     font-size: 0.875rem;
   }
-  
-  .gs-pagination-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+
+  .gs-action-buttons button {
+    padding: 0.4rem;
   }
-  
-  .gs-pagination-btn {
-    background: none;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.375rem;
-    padding: 0.25rem 0.5rem;
-    cursor: pointer;
-    color: #4a5568;
-    transition: all 0.2s;
+
+  .gs-action-buttons button i {
+    font-size: 1rem;
   }
-  
-  .gs-pagination-btn:hover {
-    background-color: #edf2f7;
+
+  .gs-site-card {
+    padding: 0.75rem;
   }
-  
-  /* =============== RESPONSIVE DESIGN =============== */
-  @media (max-width: 1024px) {
-    .gs-main-content {
-      margin-left: 0;
-      padding: 1rem;
-    }
-  
-    .gs-card-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1rem;
-    }
-  
-    .gs-search-filter {
-      width: 100%;
-    }
+
+  .gs-site-card-item {
+    font-size: 0.8rem;
   }
-  
-  @media (max-width: 768px) {
-    .gs-sites-table {
-      display: block;
-      overflow-x: auto;
-      white-space: nowrap;
-    }
-  
-    .gs-page-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1rem;
-    }
-  
-    .gs-table-footer {
-      flex-direction: column;
-      gap: 1rem;
-      align-items: flex-start;
-    }
-  }
-  
-  /* Styles pour les mini-cartes métriques */
+}

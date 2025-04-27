@@ -1,147 +1,241 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import clsx from 'clsx';
 import Sidebar from '../components/Sidebar';
-import './cssP/test.css';
+ // Placeholder: Create this component
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './cssP/Eclairage.css';
 
 function Eclairage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [lightPoints, setLightPoints] = useState([
-    { id: 1, name: 'Lumière Rue Principale', location: 'Paris', status: 'actif', lastUpdate: '2023-06-10', power: '50W', type: 'LED' },
-    { id: 2, name: 'Lumière Place Centrale', location: 'Lyon', status: 'panne', lastUpdate: '2023-06-11', power: '75W', type: 'Sodium' },
-    { id: 3, name: 'Lumière Avenue des Champs', location: 'Marseille', status: 'actif', lastUpdate: '2023-06-12', power: '60W', type: 'LED' },
-    { id: 4, name: 'Lumière Boulevard Maritime', location: 'Bordeaux', status: 'maintenance', lastUpdate: '2023-06-13', power: '100W', type: 'Halogene' },
-    { id: 5, name: 'Lumière Rue du Commerce', location: 'Lille', status: 'actif', lastUpdate: '2023-06-14', power: '40W', type: 'LED' },
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editEclairage, setEditEclairage] = useState(null);
+  const [dataPopup, setDataPopup] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [eclairages, setEclairages] = useState([
+    { _id: 'eclairage_1', nom: 'Éclairage A', type: 'LED', site: { nom: 'Site Alpha' }, puissance: '100', statut: 'Actif' },
+    { _id: 'eclairage_2', nom: 'Éclairage B', type: 'Halogène', site: { nom: 'Site Beta' }, puissance: '200', statut: 'Inactif' },
+    { _id: 'eclairage_3', nom: 'Éclairage C', type: 'Sodium', site: { nom: 'Site Gamma' }, puissance: '150', statut: 'Actif' },
+    { _id: 'eclairage_4', nom: 'Éclairage D', type: 'LED', site: { nom: 'Site Alpha' }, puissance: '120', statut: 'Inactif' },
+    { _id: 'eclairage_5', nom: 'Éclairage E', type: 'Halogène', site: { nom: 'Site Delta' }, puissance: '180', statut: 'Actif' },
+    { _id: 'eclairage_6', nom: 'Éclairage F', type: 'Sodium', site: { nom: 'Site Beta' }, puissance: '130', statut: 'Actif' },
+    { _id: 'eclairage_7', nom: 'Éclairage G', type: 'LED', site: { nom: 'Site Gamma' }, puissance: '110', statut: 'Inactif' },
+    { _id: 'eclairage_8', nom: 'Éclairage H', type: 'Halogène', site: { nom: 'Site Delta' }, puissance: '190', statut: 'Actif' },
+    { _id: 'eclairage_9', nom: 'Éclairage I', type: 'Sodium', site: { nom: 'Site Alpha' }, puissance: '140', statut: 'Inactif' },
+    { _id: 'eclairage_10', nom: 'Éclairage J', type: 'LED', site: { nom: 'Site Beta' }, puissance: '160', statut: 'Actif' },
+    { _id: 'eclairage_11', nom: 'Éclairage K', type: 'Halogène', site: { nom: 'Site Gamma' }, puissance: '170', statut: 'Actif' },
+    { _id: 'eclairage_12', nom: 'Éclairage L', type: 'Sodium', site: { nom: 'Site Delta' }, puissance: '125', statut: 'Inactif' },
   ]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const eclairagesPerPage = 10;
 
-  const filteredPoints = lightPoints.filter(point =>
-    point.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    point.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false);
+      }
+    };
 
-  const handleDelete = (id) => {
-    setLightPoints(lightPoints.filter(point => point.id !== id));
-  };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case 'actif':
-        return { bg: '#C6F6D5', text: '#22543D', icon: 'ri-flashlight-fill', color: '#48BB78' };
-      case 'panne':
-        return { bg: '#FED7D7', text: '#822727', icon: 'ri-error-warning-fill', color: '#E53E3E' };
-      case 'maintenance':
-        return { bg: '#FEFCBF', text: '#744210', icon: 'ri-tools-fill', color: '#D69E2E' };
-      default:
-        return { bg: '#E2E8F0', text: '#1A365D', icon: 'ri-question-fill', color: '#4299E1' };
+  const filteredEclairages = useMemo(() => {
+    return eclairages.filter(
+      (eclairage) =>
+        eclairage.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        eclairage.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (eclairage.site?.nom || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [eclairages, searchTerm]);
+
+  const totalPages = Math.ceil(filteredEclairages.length / eclairagesPerPage);
+  const paginatedEclairages = useMemo(() => {
+    const startIndex = (currentPage - 1) * eclairagesPerPage;
+    return filteredEclairages.slice(startIndex, startIndex + eclairagesPerPage);
+  }, [filteredEclairages, currentPage]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
   };
 
-  return (
-    <div className="gs-container">
-      <Sidebar />
-      <main className="gs-main-content">
-        <div className="gs-dashboard-card">
-          {/* En-tête de page */}
-          <div className="gs-page-header">
-  <div className="gs-header-content">
-    <div className="gs-title-wrapper">
-      <div className="gs-title-icon-container" style={{ 
-        background: 'linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)',
-        boxShadow: '0 4px 8px rgba(30, 64, 175, 0.2)',
-        borderRadius: '12px'
-      }}>
-        <i className="ri-flashlight-line gs-main-icon" style={{ 
-          color: 'rgba(255, 255, 255, 0.9)',
-          fontSize: '1.5rem',
-          textShadow: '0 0 8px rgba(255, 255, 255, 0.4)'
-        }}></i>
-      </div>
-      <div>
-        <h1 className="gs-main-title" style={{ 
-          color: '#1E293B',
-          fontWeight: 700,
-          letterSpacing: '-0.5px'
-        }}>
-          Gestionnaire d'Éclairage
-          <span className="gs-title-underline" style={{ 
-            background: 'linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)',
-            height: '4px',
-            borderRadius: '2px',
-            display: 'block',
-            width: '120px',
-            marginTop: '8px'
-          }}></span>
-        </h1>
-        <p className="gs-subtitle" style={{ 
-          color: '#64748B',
-          fontSize: '0.95rem',
-          marginTop: '4px'
-        }}>
-          Contrôlez et optimisez votre réseau d'éclairage public
-        </p>
-      </div>
-    </div>
-    <button className="gs-add-site-btn gs-btn-primary" style={{ 
-      background: 'linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)',
-      color: 'white',
-      border: 'none',
-      boxShadow: '0 2px 6px rgba(245, 158, 11, 0.25)',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      borderRadius: '8px',
-      padding: '10px 16px',
-      fontWeight: 600,
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px'
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = 'translateY(-2px)';
-      e.currentTarget.style.boxShadow = '0 4px 8px rgba(245, 158, 11, 0.3)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = 'translateY(0)';
-      e.currentTarget.style.boxShadow = '0 2px 6px rgba(245, 158, 11, 0.25)';
-    }}>
-      <i className="ri-add-circle-line" style={{ fontSize: '1.1rem' }}></i>
-      <span>Ajouter un point</span>
-    </button>
-  </div>
-</div>
+  const handleOpenDataPopup = () => {
+    setDataPopup(false);
+    setTimeout(() => {
+      setDataPopup(true);
+    }, 10);
+  };
 
-          {/* Section Liste */}
-          <div className="gs-card-header">
-            <div className="gs-list-header-wrapper">
-              <div className="gs-list-title-container">
-                <i className="ri-list-check-2 gs-list-icon" style={{ color: '#2563EB', backgroundColor: '#DBEAFE' }}></i>
-                <h2 className="gs-list-title">
-                  Points Lumineux
-                  <span className="gs-site-count" style={{ backgroundColor: '#2563EB', color: '#DBEAFE' }}>
-                    {lightPoints.length} unité{lightPoints.length !== 1 ? 's' : ''}
-                  </span>
+  const handleCloseDataPopup = () => {
+    setDataPopup(false);
+  };
+
+  const handleSaveEclairage = (eclairageData) => {
+    try {
+      const newEclairage = {
+        ...eclairageData,
+        _id: `eclairage_${Date.now()}`,
+        site: { nom: eclairageData.site || 'Site non attribué' },
+      };
+      setEclairages([...eclairages, newEclairage]);
+      toast.success('Éclairage créé avec succès !');
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error('🚨 Une erreur est survenue lors de la création de l\'éclairage');
+      console.error('Erreur:', error);
+    }
+  };
+
+  const handleEditEclairage = (eclairageData) => {
+    try {
+      const updatedEclairages = eclairages.map((eclairage) =>
+        eclairage._id === editEclairage._id
+          ? { ...eclairageData, _id: editEclairage._id, site: { nom: eclairageData.site || 'Site non attribué' } }
+          : eclairage
+      );
+      setEclairages(updatedEclairages);
+      toast.success('Éclairage modifié avec succès !');
+      setIsEditModalOpen(false);
+      setEditEclairage(null);
+    } catch (error) {
+      toast.error('🚨 Une erreur est survenue lors de la modification de l\'éclairage');
+      console.error('Erreur:', error);
+    }
+  };
+
+  const handleDeleteEclairage = (eclairageId) => {
+    try {
+      setEclairages(eclairages.filter((eclairage) => eclairage._id !== eclairageId));
+      toast.success('Éclairage supprimé avec succès !');
+    } catch (error) {
+      toast.error('🚨 Une erreur est survenue lors de la suppression de l\'éclairage');
+      console.error('Erreur:', error);
+    }
+  };
+
+  const handleSidebarToggle = (isOpen) => {
+    setSidebarOpen(isOpen);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setCurrentPage(1);
+  };
+
+  const handleOpenEditModal = (eclairage) => {
+    setEditEclairage(eclairage);
+    setIsEditModalOpen(true);
+  };
+
+  return (
+    <div class="eclairage-page">
+    <div className="ec-container" style={{ display: 'flex', minHeight: '100vh' }}>
+      <Sidebar
+        onToggle={handleSidebarToggle}
+        className={clsx('ec-sidebar', {
+          'ec-sidebar-open': sidebarOpen,
+          'ec-sidebar-collapsed': !sidebarOpen,
+        })}
+      />
+      <main
+        className={clsx('ec-main-content', {
+          'ec-sidebar-collapsed': !sidebarOpen || isMobile,
+        })}
+        style={{
+          flex: 1,
+          marginLeft: 0,
+          paddingLeft: 0,
+          marginTop: '2rem',
+        }}
+      >
+        <div className="ec-dashboard-card">
+          <div className="ec-page-header">
+            <div className="ec-header-content">
+              <div className="ec-title-wrapper">
+                <div className="ec-title-icon-container">
+                  <i className="ri-lightbulb-flash-line ec-main-icon"></i>
+                </div>
+                <div>
+                  <h1 className="ec-main-title">
+                    Gestionnaire d'Éclairage
+                    <span className="ec-title-underline"></span>
+                  </h1>
+                  <p className="ec-subtitle">Administrez l'ensemble de vos systèmes d'éclairage</p>
+                </div>
+              </div>
+              <button
+                className="ec-add-eclairage-btn ec-btn-primary"
+                onClick={() => setIsModalOpen(true)}
+                aria-label="Ajouter un nouvel éclairage"
+              >
+                <i className="ri-add-circle-line"></i>
+                <span>Nouvel éclairage</span>
+              </button>
+              {isModalOpen && (
+                <AddEclairageModal onClose={() => setIsModalOpen(false)} onSave={handleSaveEclairage} />
+              )}
+              {isEditModalOpen && (
+                <AddEclairageModal
+                  onClose={() => {
+                    setIsEditModalOpen(false);
+                    setEditEclairage(null);
+                  }}
+                  onSave={handleEditEclairage}
+                  initialData={editEclairage}
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="ec-card-header">
+            <div className="ec-list-header-wrapper">
+              <div className="ec-list-title-container">
+                <i className="ri-table-2 ec-list-icon"></i>
+                <h2 className="ec-list-title">
+                  Liste des Éclairages
+                  <span className="ec-eclairage-count">{filteredEclairages.length} éclairage(s)</span>
                 </h2>
               </div>
-              <div className="gs-search-filter-container">
-                <div className="gs-search-box">
-                  <i className="ri-search-line gs-search-icon"></i>
+              <div className="ec-search-filter-container">
+                <div className="ec-search-box">
+                  <i className="ri-search-line ec-search-icon"></i>
                   <input
+                    id="eclairage-search"
                     type="text"
-                    placeholder="Rechercher un point lumineux..."
-                    className="gs-search-input"
+                    placeholder="Rechercher un éclairage..."
+                    className="ec-search-input"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={handleSearchChange}
                   />
                   {searchTerm && (
-                    <i 
-                      className="ri-close-line gs-clear-icon" 
-                      onClick={() => setSearchTerm('')}
-                      style={{ cursor: 'pointer' }}
-                    />
+                    <i
+                      className="ri-close-line ec-clear-icon"
+                      onClick={handleClearSearch}
+                      aria-label="Effacer la recherche"
+                    ></i>
                   )}
                 </div>
-                <div className="gs-filter-group">
-                  <button className="gs-filter-btn gs-btn-secondary">
+                <div className="ec-filter-group">
+                  <button className="ec-btn-secondary" aria-label="Filtrer les éclairages">
                     <i className="ri-filter-3-line"></i>
                     <span>Filtrer</span>
                   </button>
-                  <button className="gs-sort-btn gs-btn-secondary">
+                  <button
+                    className="ec-sort-btn ec-btn-secondary"
+                    aria-label="Trier les éclairages"
+                  >
                     <i className="ri-arrow-up-down-line"></i>
                   </button>
                 </div>
@@ -149,154 +243,229 @@ function Eclairage() {
             </div>
           </div>
 
-          {/* Tableau des points lumineux */}
-          <div className="gs-table-responsive">
-            <table className="gs-sites-table">
-              <thead>
-                <tr>
-                  <th>Nom du Point</th>
-                  <th>Localisation</th>
-                  <th>Type/Puissance</th>
-                  <th>Status</th>
-                  <th>Dernière Mise à Jour</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPoints.map((point) => {
-                  const statusStyle = getStatusStyle(point.status);
-                  return (
-                    <tr key={point.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <i className="ri-lightbulb-flash-fill" style={{
-                            color: '#FBBF24',
-                            marginRight: '8px',
-                            fontSize: '1.2rem'
-                          }} />
-                          {point.name}
-                        </div>
-                      </td>
-
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <i className="ri-map-pin-2-fill" style={{
-                            color: '#F56565',
-                            marginRight: '8px',
-                            cursor: 'pointer',
-                            transition: 'transform 0.2s'
-                          }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                            title={`Localisation: ${point.location}`}
-                          />
-                          {point.location}
-                        </div>
-                      </td>
-
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <span className="gs-tag" style={{ backgroundColor: '#EFF6FF', color: '#3B82F6' }}>
-                            {point.type}
-                          </span>
-                          <span className="gs-tag" style={{ backgroundColor: '#ECFDF5', color: '#059669', marginLeft: '8px' }}>
-                            {point.power}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <i
-                            className={statusStyle.icon}
-                            style={{
-                              color: statusStyle.color,
-                              marginRight: '8px',
-                              fontSize: '1.2rem'
-                            }}
-                          />
-                          <span
-                            style={{
-                              padding: '0.25rem 0.75rem',
-                              borderRadius: '9999px',
-                              fontSize: '0.75rem',
-                              fontWeight: 600,
-                              backgroundColor: statusStyle.bg,
-                              color: statusStyle.text,
-                              textTransform: 'capitalize'
-                            }}
-                          >
-                            {point.status}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <i className="ri-history-line" style={{
-                            color: '#718096',
-                            marginRight: '8px'
-                          }} />
-                          {point.lastUpdate}
-                        </div>
-                      </td>
-
-                      <td>
-                        <div className="gs-action-buttons" style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button style={{
-                            background: 'none',
-                            border: 'none',
-                            color: '#4299E1',
-                            cursor: 'pointer',
-                            padding: '0.5rem',
-                            borderRadius: '50%',
-                            transition: 'all 0.2s'
-                          }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#EBF8FF'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                            <i className="ri-edit-line" style={{ fontSize: '1.2rem' }} />
-                          </button>
-
-                          <button style={{
-                            background: 'none',
-                            border: 'none',
-                            color: '#F56565',
-                            cursor: 'pointer',
-                            padding: '0.5rem',
-                            borderRadius: '50%',
-                            transition: 'all 0.2s'
-                          }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FFF5F5'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                            onClick={() => handleDelete(point.id)}>
-                            <i className="ri-delete-bin-line" style={{ fontSize: '1.2rem' }} />
-                          </button>
-                        </div>
+          {isMobile ? (
+            <div className="ec-eclairage-cards">
+              {paginatedEclairages.length > 0 ? (
+                paginatedEclairages.map((eclairage, i) => (
+                  <div className="ec-eclairage-card" key={eclairage._id}>
+                    <div className="ec-eclairage-card-header">
+                      <div className="ec-eclairage-card-title">
+                        <span className="ec-eclairage-number">{(currentPage - 1) * eclairagesPerPage + i + 1}.</span>
+                        <i className="ri-lightbulb-flash-line" />
+                        <span>{eclairage.nom}</span>
+                      </div>
+                    </div>
+                    <div className="ec-eclairage-card-body">
+                      <div className="ec-eclairage-card-item">
+                        <i className="ri-home-4-line" />
+                        <span>{eclairage.site?.nom || 'Site non attribué'}</span>
+                      </div>
+                      <div className="ec-eclairage-card-item">
+                        <i className="ri-cpu-line" />
+                        <span>{eclairage.type}</span>
+                      </div>
+                      <div className="ec-eclairage-card-item">
+                        <i className="ri-battery-2-charge-line" />
+                        <span>{eclairage.puissance} W</span>
+                      </div>
+                      <div className="ec-eclairage-card-item">
+                        <i
+                          className={`ri-${
+                            eclairage.statut === 'Actif' ? 'flashlight-fill' : 'error-warning-fill'
+                          }`}
+                        />
+                        <span
+                          className={clsx('ec-status-badge', {
+                            active: eclairage.statut === 'Actif',
+                            inactive: eclairage.statut !== 'Actif',
+                          })}
+                        >
+                          {eclairage.statut}
+                        </span>
+                      </div>
+                      <div className="ec-eclairage-card-item">
+                        <i
+                          className="ri-database-2-fill"
+                          onClick={handleOpenDataPopup}
+                          title="Accéder aux données techniques"
+                          aria-label="Voir les données techniques"
+                        />
+                        <span>Data</span>
+                      </div>
+                    </div>
+                    <div className="ec-eclairage-card-footer">
+                      <div className="ec-action-buttons">
+                        <button
+                          className="ec-action-btn edit"
+                          onClick={() => handleOpenEditModal(eclairage)}
+                          aria-label={`Modifier l'éclairage ${eclairage.nom}`}
+                        >
+                          <i className="ri-edit-line" />
+                        </button>
+                        <button
+                          className="ec-action-btn delete"
+                          onClick={() => handleDeleteEclairage(eclairage._id)}
+                          aria-label={`Supprimer l'éclairage ${eclairage.nom}`}
+                        >
+                          <i className="ri-delete-bin-line" />
+                        </button>
+                        <button
+                          className="ec-action-btn detail"
+                          title="Voir détails"
+                          aria-label={`Voir les détails de l'éclairage ${eclairage.nom}`}
+                        >
+                          <i className="ri-eye-line" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="ec-no-eclairages">Aucun éclairage disponible.</div>
+              )}
+            </div>
+          ) : (
+            <div className="ec-tableResponsive">
+              <table className="ec-eclairages-table">
+                <thead>
+                  <tr>
+                    <th>Nom de l'Éclairage</th>
+                    <th>Site associé</th>
+                    <th>Type</th>
+                    <th>Puissance</th>
+                    <th>Statut</th>
+                    <th>Data</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedEclairages.length > 0 ? (
+                    paginatedEclairages.map((eclairage, i) => (
+                      <tr key={eclairage._id}>
+                        <td>
+                          <div className="ec-eclairage-name">
+                            <span className="ec-eclairage-number">{(currentPage - 1) * eclairagesPerPage + i + 1}.</span>
+                            <i className="ri-lightbulb-flash-line" />
+                            <div>
+                              <span>{eclairage.nom}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="ec-eclairage-cell">
+                            <i className="ri-home-4-line" />
+                            {eclairage.site?.nom || 'Site non attribué'}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="ec-eclairage-cell">
+                            <i className="ri-cpu-line" />
+                            {eclairage.type}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="ec-eclairage-cell">
+                            <i className="ri-battery-2-charge-line" />
+                            {eclairage.puissance} W
+                          </div>
+                        </td>
+                        <td>
+                          <div className="ec-eclairage-cell">
+                            <i
+                              className={`ri-${
+                                eclairage.statut === 'Actif' ? 'flashlight-fill' : 'error-warning-fill'
+                              }`}
+                            />
+                            <span
+                              className={clsx('ec-status-badge', {
+                                active: eclairage.statut === 'Actif',
+                                inactive: eclairage.statut !== 'Actif',
+                              })}
+                            >
+                              {eclairage.statut}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="ec-eclairage-cell">
+                            <i
+                              className="ri-database-2-fill"
+                              onClick={handleOpenDataPopup}
+                              title="Accéder aux données techniques"
+                              aria-label="Voir les données techniques"
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          <div className="ec-action-buttons">
+                            <button
+                              className="ec-action-btn edit"
+                              onClick={() => handleOpenEditModal(eclairage)}
+                              aria-label={`Modifier l'éclairage ${eclairage.nom}`}
+                            >
+                              <i className="ri-edit-line" />
+                            </button>
+                            <button
+                              className="ec-action-btn delete"
+                              onClick={() => handleDeleteEclairage(eclairage._id)}
+                              aria-label={`Supprimer l'éclairage ${eclairage.nom}`}
+                            >
+                              <i className="ri-delete-bin-line" />
+                            </button>
+                            <button
+                              className="ec-action-btn detail"
+                              title="Voir détails"
+                              aria-label={`Voir les détails de l'éclairage ${eclairage.nom}`}
+                            >
+                              <i className="ri-eye-line" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="ec-no-eclairages">
+                        Aucun éclairage disponible.
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pied de tableau */}
-          <div className="gs-table-footer">
-            <div className="gs-pagination-info">
-              Affichage 1-{filteredPoints.length} sur {filteredPoints.length} points lumineux
+                  )}
+                </tbody>
+              </table>
             </div>
-            <div className="gs-pagination-controls">
-              <button className="gs-pagination-btn" disabled>
+          )}
+
+          <div className="ec-table-footer">
+            <div className="ec-pagination-info">
+              Affichage {(currentPage - 1) * eclairagesPerPage + 1}-
+              {Math.min(currentPage * eclairagesPerPage, filteredEclairages.length)} sur{' '}
+              {filteredEclairages.length} éclairage(s)
+            </div>
+            <div className="ec-pagination-controls">
+              <button
+                className="ec-pagination-btn"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                aria-label="Page précédente"
+              >
                 <i className="ri-arrow-left-s-line"></i>
               </button>
-              <span>1</span>
-              <button className="gs-pagination-btn" disabled={filteredPoints.length <= 5}>
+              <span>{currentPage}</span>
+              <button
+                className="ec-pagination-btn"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                aria-label="Page suivante"
+              >
                 <i className="ri-arrow-right-s-line"></i>
               </button>
             </div>
           </div>
         </div>
       </main>
+      {dataPopup && <EclairageDataPopup onClose={handleCloseDataPopup} />}
+      <ToastContainer position="top-right" autoClose={3000} />
+    </div>
     </div>
   );
 }

@@ -1,347 +1,481 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import clsx from 'clsx';
 import Sidebar from '../components/Sidebar';
-import './cssP/test.css';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './cssP/Utilisateurs.css';
 
 function Utilisateurs() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editUtilisateur, setEditUtilisateur] = useState(null);
+  const [dataPopup, setDataPopup] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [utilisateurs, setUtilisateurs] = useState([
+    { _id: 'utilisateur_1', nom: 'Jean Dupont', role: 'Admin', site: { nom: 'Site Alpha' }, email: 'jean.dupont@example.com', statut: 'Actif' },
+    { _id: 'utilisateur_2', nom: 'Marie Martin', role: 'Technicien', site: { nom: 'Site Beta' }, email: 'marie.martin@example.com', statut: 'Inactif' },
+    { _id: 'utilisateur_3', nom: 'Pierre Lefèvre', role: 'Superviseur', site: { nom: 'Site Gamma' }, email: 'pierre.lefevre@example.com', statut: 'Actif' },
+    { _id: 'utilisateur_4', nom: 'Sophie Dubois', role: 'Admin', site: { nom: 'Site Alpha' }, email: 'sophie.dubois@example.com', statut: 'Suspendu' },
+    { _id: 'utilisateur_5', nom: 'Luc Durand', role: 'Technicien', site: { nom: 'Site Delta' }, email: 'luc.durand@example.com', statut: 'Actif' },
+    { _id: 'utilisateur_6', nom: 'Claire Renault', role: 'Superviseur', site: { nom: 'Site Beta' }, email: 'claire.renault@example.com', statut: 'Inactif' },
+    { _id: 'utilisateur_7', nom: 'Antoine Morel', role: 'Admin', site: { nom: 'Site Gamma' }, email: 'antoine.morel@example.com', statut: 'Actif' },
+    { _id: 'utilisateur_8', nom: 'Emma Bernard', role: 'Technicien', site: { nom: 'Site Delta' }, email: 'emma.bernard@example.com', statut: 'Suspendu' },
+    { _id: 'utilisateur_9', nom: 'Louis Gauthier', role: 'Superviseur', site: { nom: 'Site Alpha' }, email: 'louis.gauthier@example.com', statut: 'Actif' },
+    { _id: 'utilisateur_10', nom: 'Julie Roy', role: 'Admin', site: { nom: 'Site Beta' }, email: 'julie.roy@example.com', statut: 'Inactif' },
+    { _id: 'utilisateur_11', nom: 'Thomas Lemoine', role: 'Technicien', site: { nom: 'Site Gamma' }, email: 'thomas.lemoine@example.com', statut: 'Actif' },
+    { _id: 'utilisateur_12', nom: 'Alice Petit', role: 'Superviseur', site: { nom: 'Site Delta' }, email: 'alice.petit@example.com', statut: 'Suspendu' },
+  ]);
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Données de démonstration pour les utilisateurs
-  const utilisateurs = [
-    {
-      id: 1,
-      nom: 'Dupont',
-      prenom: 'Jean',
-      email: 'jean.dupont@example.com',
-      role: 'Administrateur',
-      derniereConnexion: '2023-06-15 09:42',
-      status: 'actif'
-    },
-    {
-      id: 2,
-      nom: 'Martin',
-      prenom: 'Sophie',
-      email: 'sophie.martin@example.com',
-      role: 'Éditeur',
-      derniereConnexion: '2023-06-14 14:30',
-      status: 'actif'
-    },
-    {
-      id: 3,
-      nom: 'Bernard',
-      prenom: 'Pierre',
-      email: 'pierre.bernard@example.com',
-      role: 'Contributeur',
-      derniereConnexion: '2023-06-10 11:15',
-      status: 'inactif'
-    },
-    {
-      id: 4,
-      nom: 'Petit',
-      prenom: 'Marie',
-      email: 'marie.petit@example.com',
-      role: 'Lecteur',
-      derniereConnexion: '2023-05-28 16:20',
-      status: 'suspendu'
-    },
-    {
-      id: 5,
-      nom: 'Durand',
-      prenom: 'Luc',
-      email: 'luc.durand@example.com',
-      role: 'Modérateur',
-      derniereConnexion: '2023-06-15 08:05',
-      status: 'actif'
-    }
-  ];
+  const [currentPage, setCurrentPage] = useState(1);
+  const utilisateursPerPage = 10;
 
-  const filteredUsers = utilisateurs.filter(user => 
-    user.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false);
+      }
+    };
 
-  const getStatusStyle = (status) => {
-    switch(status) {
-      case 'actif':
-        return { bg: '#D1FAE5', text: '#065F46', icon: 'ri-user-follow-fill', color: '#10B981' };
-      case 'inactif':
-        return { bg: '#E5E7EB', text: '#4B5563', icon: 'ri-user-unfollow-line', color: '#6B7280' };
-      case 'suspendu':
-        return { bg: '#FEE2E2', text: '#991B1B', icon: 'ri-user-forbid-line', color: '#EF4444' };
-      default:
-        return { bg: '#E5E7EB', text: '#1F2937', icon: 'ri-user-line', color: '#6B7280' };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const filteredUtilisateurs = useMemo(() => {
+    return utilisateurs.filter(
+      (utilisateur) =>
+        utilisateur.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        utilisateur.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        utilisateur.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (utilisateur.site?.nom || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [utilisateurs, searchTerm]);
+
+  const totalPages = Math.ceil(filteredUtilisateurs.length / utilisateursPerPage);
+  const paginatedUtilisateurs = useMemo(() => {
+    const startIndex = (currentPage - 1) * utilisateursPerPage;
+    return filteredUtilisateurs.slice(startIndex, startIndex + utilisateursPerPage);
+  }, [filteredUtilisateurs, currentPage]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
   };
 
-  const getRoleStyle = (role) => {
-    switch(role) {
-      case 'Administrateur':
-        return { bg: '#DBEAFE', text: '#1E40AF', icon: 'ri-shield-user-fill' };
-      case 'Modérateur':
-        return { bg: '#E0F2FE', text: '#0369A1', icon: 'ri-user-star-fill' };
-      case 'Éditeur':
-        return { bg: '#D1FAE5', text: '#047857', icon: 'ri-edit-2-fill' };
-      case 'Contributeur':
-        return { bg: '#FEF3C7', text: '#92400E', icon: 'ri-team-fill' };
-      case 'Lecteur':
-        return { bg: '#ECFDF5', text: '#059669', icon: 'ri-eye-fill' };
-      default:
-        return { bg: '#E5E7EB', text: '#4B5563', icon: 'ri-user-line' };
+  const handleOpenDataPopup = () => {
+    setDataPopup(false);
+    setTimeout(() => {
+      setDataPopup(true);
+    }, 10);
+  };
+
+  const handleCloseDataPopup = () => {
+    setDataPopup(false);
+  };
+
+  const handleSaveUtilisateur = (utilisateurData) => {
+    try {
+      const newUtilisateur = {
+        ...utilisateurData,
+        _id: `utilisateur_${Date.now()}`,
+        site: { nom: utilisateurData.site || 'Site non attribué' },
+      };
+      setUtilisateurs([...utilisateurs, newUtilisateur]);
+      toast.success('Utilisateur créé avec succès !');
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error('🚨 Une erreur est survenue lors de la création de l\'utilisateur');
+      console.error('Erreur:', error);
     }
+  };
+
+  const handleEditUtilisateur = (utilisateurData) => {
+    try {
+      const updatedUtilisateurs = utilisateurs.map((utilisateur) =>
+        utilisateur._id === editUtilisateur._id
+          ? { ...utilisateurData, _id: editUtilisateur._id, site: { nom: utilisateurData.site || 'Site non attribué' } }
+          : utilisateur
+      );
+      setUtilisateurs(updatedUtilisateurs);
+      toast.success('Utilisateur modifié avec succès !');
+      setIsEditModalOpen(false);
+      setEditUtilisateur(null);
+    } catch (error) {
+      toast.error('🚨 Une erreur est survenue lors de la modification de l\'utilisateur');
+      console.error('Erreur:', error);
+    }
+  };
+
+  const handleDeleteUtilisateur = (utilisateurId) => {
+    try {
+      setUtilisateurs(utilisateurs.filter((utilisateur) => utilisateur._id !== utilisateurId));
+      toast.success('Utilisateur supprimé avec succès !');
+    } catch (error) {
+      toast.error('🚨 Une erreur est survenue lors de la suppression de l\'utilisateur');
+      console.error('Erreur:', error);
+    }
+  };
+
+  const handleSidebarToggle = (isOpen) => {
+    setSidebarOpen(isOpen);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setCurrentPage(1);
+  };
+
+  const handleOpenEditModal = (utilisateur) => {
+    setEditUtilisateur(utilisateur);
+    setIsEditModalOpen(true);
   };
 
   return (
-    <div className="gs-container">
-      <Sidebar />
-      <main className="gs-main-content">
-        <div className="gs-dashboard-card">
-          {/* En-tête */}
-          <div className="gs-page-header">
-            <div className="gs-header-content">
-              <div className="gs-title-wrapper">
-                <div className="gs-title-icon-container" style={{background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)'}}>
-                  <i className="ri-user-settings-line gs-main-icon"></i>
+    <div className='utilisateur-page'>
+    <div className="us-container" style={{ display: 'flex', minHeight: '100vh' }}>
+      <Sidebar
+        onToggle={handleSidebarToggle}
+        className={clsx('us-sidebar', {
+          'us-sidebar-open': sidebarOpen,
+          'us-sidebar-collapsed': !sidebarOpen,
+        })}
+      />
+      <main
+        className={clsx('us-main-content', {
+          'us-sidebar-collapsed': !sidebarOpen || isMobile,
+        })}
+        style={{
+          flex: 1,
+          marginLeft: 0,
+          paddingLeft: 0,
+          marginTop: '2rem',
+        }}
+      >
+        <div className="us-dashboard-card">
+          <div className="us-page-header">
+            <div className="us-header-content">
+              <div className="us-title-wrapper">
+                <div className="us-title-icon-container">
+                  <i className="ri-user-3-line us-main-icon"></i>
                 </div>
                 <div>
-                  <h1 className="gs-main-title">
+                  <h1 className="us-main-title">
                     Gestionnaire d'Utilisateurs
-                    <span className="gs-title-underline" style={{background: 'linear-gradient(90deg, #10b981 0%, #047857 100%)'}}></span>
+                    <span className="us-title-underline"></span>
                   </h1>
-                  <p className="gs-subtitle">Administrez les accès et permissions de votre organisation</p>
+                  <p className="us-subtitle">Administrez l'ensemble de vos utilisateurs</p>
                 </div>
               </div>
-              <button className="gs-add-site-btn gs-btn-primary" style={{background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)'}}>
-                <i className="ri-user-add-line"></i>
+              <button
+                className="us-add-utilisateur-btn us-btn-primary"
+                onClick={() => setIsModalOpen(true)}
+                aria-label="Ajouter un nouvel utilisateur"
+              >
+                <i className="ri-add-circle-line"></i>
                 <span>Nouvel utilisateur</span>
               </button>
+              {isModalOpen && (
+                <AddUtilisateurModal onClose={() => setIsModalOpen(false)} onSave={handleSaveUtilisateur} />
+              )}
+              {isEditModalOpen && (
+                <AddUtilisateurModal
+                  onClose={() => {
+                    setIsEditModalOpen(false);
+                    setEditUtilisateur(null);
+                  }}
+                  onSave={handleEditUtilisateur}
+                  initialData={editUtilisateur}
+                />
+              )}
             </div>
           </div>
 
-          {/* Section Liste */}
-          <div className="gs-card-header">
-            <div className="gs-list-header-wrapper">
-              <div className="gs-list-title-container">
-                <i className="ri-team-line gs-list-icon" style={{color: '#10b981', backgroundColor: '#d1fae5'}}></i>
-                <h2 className="gs-list-title">
-                  Utilisateurs Actifs
-                  <span className="gs-site-count" style={{backgroundColor: '#d1fae5', color: '#047857'}}>
-                    {utilisateurs.filter(u => u.status === 'actif').length} actifs
-                  </span>
+          <div className="us-card-header">
+            <div className="us-list-header-wrapper">
+              <div className="us-list-title-container">
+                <i className="ri-table-2 us-list-icon"></i>
+                <h2 className="us-list-title">
+                  Liste des Utilisateurs
+                  <span className="us-utilisateur-count">{filteredUtilisateurs.length} utilisateur(s)</span>
                 </h2>
               </div>
-              <div className="gs-search-filter-container">
-                <div className="gs-search-box">
-                  <i className="ri-search-line gs-search-icon"></i>
-                  <input 
-                    type="text" 
-                    placeholder="Rechercher un utilisateur..." 
-                    className="gs-search-input"
+              <div className="us-search-filter-container">
+                <div className="us-search-box">
+                  <i className="ri-search-line us-search-icon"></i>
+                  <input
+                    id="utilisateur-search"
+                    type="text"
+                    placeholder="Rechercher un utilisateur..."
+                    className="us-search-input"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={handleSearchChange}
                   />
                   {searchTerm && (
-                    <i 
-                      className="ri-close-line gs-clear-icon" 
-                      onClick={() => setSearchTerm('')}
-                      style={{ cursor: 'pointer' }}
-                    />
+                    <i
+                      className="ri-close-line us-clear-icon"
+                      onClick={handleClearSearch}
+                      aria-label="Effacer la recherche"
+                    ></i>
                   )}
                 </div>
-                <div className="gs-filter-group">
-                  <button className="gs-filter-btn gs-btn-secondary">
+                <div className="us-filter-group">
+                  <button className="us-btn-secondary" aria-label="Filtrer les utilisateurs">
                     <i className="ri-filter-3-line"></i>
                     <span>Filtrer</span>
                   </button>
-                  <button className="gs-sort-btn gs-btn-secondary">
+                  <button
+                    className="us-sort-btn us-btn-secondary"
+                    aria-label="Trier les utilisateurs"
+                  >
                     <i className="ri-arrow-up-down-line"></i>
-                  </button>
-                  <button className="gs-export-btn gs-btn-secondary">
-                    <i className="ri-download-line"></i>
-                    <span>Exporter</span>
                   </button>
                 </div>
               </div>
             </div>
           </div>
-          
-          {/* Tableau des utilisateurs */}
-          <div className="gs-table-responsive">
-            <table className="gs-sites-table">
-              <thead>
-                <tr>
-                  <th>Utilisateur</th>
-                  <th>Email</th>
-                  <th>Rôle</th>
-                  <th>Dernière connexion</th>
-                  <th>Statut</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user) => {
-                  const statusStyle = getStatusStyle(user.status);
-                  const roleStyle = getRoleStyle(user.role);
-                  return (
-                    <tr key={user.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <div style={{
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '50%',
-                            backgroundColor: '#ECFDF5',
-                            color: '#10B981',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginRight: '12px',
-                            fontWeight: 600
-                          }}>
-                            {user.prenom.charAt(0)}{user.nom.charAt(0)}
+
+          {isMobile ? (
+            <div className="us-utilisateur-cards">
+              {paginatedUtilisateurs.length > 0 ? (
+                paginatedUtilisateurs.map((utilisateur, i) => (
+                  <div className="us-utilisateur-card" key={utilisateur._id}>
+                    <div className="us-utilisateur-card-header">
+                      <div className="us-utilisateur-card-title">
+                        <span className="us-utilisateur-number">{(currentPage - 1) * utilisateursPerPage + i + 1}.</span>
+                        <i className="ri-user-3-line" />
+                        <span>{utilisateur.nom}</span>
+                      </div>
+                    </div>
+                    <div className="us-utilisateur-card-body">
+                      <div className="us-utilisateur-card-item">
+                        <i className="ri-home-4-line" />
+                        <span>{utilisateur.site?.nom || 'Site non attribué'}</span>
+                      </div>
+                      <div className="us-utilisateur-card-item">
+                        <i className="ri-shield-user-line" />
+                        <span>{utilisateur.role}</span>
+                      </div>
+                      <div className="us-utilisateur-card-item">
+                        <i className="ri-mail-line" />
+                        <span>{utilisateur.email}</span>
+                      </div>
+                      <div className="us-utilisateur-card-item">
+                        <i
+                          className={`ri-${
+                            utilisateur.statut === 'Actif'
+                              ? 'flashlight-fill'
+                              : utilisateur.statut === 'Inactif'
+                              ? 'error-warning-fill'
+                              : 'settings-3-fill'
+                          }`}
+                        />
+                        <span
+                          className={clsx('us-status-badge', {
+                            active: utilisateur.statut === 'Actif',
+                            inactive: utilisateur.statut !== 'Actif',
+                          })}
+                        >
+                          {utilisateur.statut}
+                        </span>
+                      </div>
+                      <div className="us-utilisateur-card-item">
+                        <i
+                          className="ri-database-2-fill"
+                          onClick={handleOpenDataPopup}
+                          title="Accéder aux données de l'utilisateur"
+                          aria-label="Voir les données de l'utilisateur"
+                        />
+                        <span>Data</span>
+                      </div>
+                    </div>
+                    <div className="us-utilisateur-card-footer">
+                      <div className="us-action-buttons">
+                        <button
+                          className="us-action-btn edit"
+                          onClick={() => handleOpenEditModal(utilisateur)}
+                          aria-label={`Modifier l'utilisateur ${utilisateur.nom}`}
+                        >
+                          <i className="ri-edit-line" />
+                        </button>
+                        <button
+                          className="us-action-btn delete"
+                          onClick={() => handleDeleteUtilisateur(utilisateur._id)}
+                          aria-label={`Supprimer l'utilisateur ${utilisateur.nom}`}
+                        >
+                          <i className="ri-delete-bin-line" />
+                        </button>
+                        <button
+                          className="us-action-btn detail"
+                          title="Voir détails"
+                          aria-label={`Voir les détails de l'utilisateur ${utilisateur.nom}`}
+                        >
+                          <i className="ri-eye-line" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="us-no-utilisateurs">Aucun utilisateur disponible.</div>
+              )}
+            </div>
+          ) : (
+            <div className="us-table-responsive">
+              <table className="us-utilisateurs-table">
+                <thead>
+                  <tr>
+                    <th>Nom de l'Utilisateur</th>
+                    <th>Site associé</th>
+                    <th>Rôle</th>
+                    <th>Email</th>
+                    <th>Statut</th>
+                    <th>Data</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedUtilisateurs.length > 0 ? (
+                    paginatedUtilisateurs.map((utilisateur, i) => (
+                      <tr key={utilisateur._id}>
+                        <td>
+                          <div className="us-utilisateur-name">
+                            <span className="us-utilisateur-number">{(currentPage - 1) * utilisateursPerPage + i + 1}.</span>
+                            <i className="ri-user-3-line" />
+                            <div>
+                              <span>{utilisateur.nom}</span>
+                            </div>
                           </div>
-                          <div>
-                            <div style={{ fontWeight: 500 }}>{user.prenom} {user.nom}</div>
-                            <div style={{ fontSize: '0.8rem', color: '#6B7280' }}>ID: {user.id}</div>
+                        </td>
+                        <td>
+                          <div className="us-utilisateur-cell">
+                            <i className="ri-home-4-line" />
+                            {utilisateur.site?.nom || 'Site non attribué'}
                           </div>
-                        </div>
-                      </td>
-                      
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <i className="ri-mail-line" style={{ 
-                            color: '#6B7280',
-                            marginRight: '8px'
-                          }} />
-                          <span style={{ fontSize: '0.9rem' }}>{user.email}</span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <i className={roleStyle.icon} style={{ 
-                            color: roleStyle.text,
-                            marginRight: '8px'
-                          }} />
-                          <span style={{
-                            padding: '4px 8px',
-                            borderRadius: '6px',
-                            backgroundColor: roleStyle.bg,
-                            color: roleStyle.text,
-                            fontSize: '0.85rem',
-                            fontWeight: 500
-                          }}>
-                            {user.role}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <i className="ri-time-line" style={{ 
-                            color: '#6B7280',
-                            marginRight: '8px'
-                          }} />
-                          <span style={{ fontSize: '0.9rem' }}>{user.derniereConnexion}</span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <i
-                            className={statusStyle.icon}
-                            style={{
-                              color: statusStyle.color,
-                              marginRight: '8px',
-                              fontSize: '1.2rem'
-                            }}
-                          />
-                          <span
-                            style={{
-                              padding: '4px 10px',
-                              borderRadius: '9999px',
-                              fontSize: '0.75rem',
-                              fontWeight: 600,
-                              backgroundColor: statusStyle.bg,
-                              color: statusStyle.text,
-                              textTransform: 'capitalize'
-                            }}
-                          >
-                            {user.status === 'actif' ? 'Actif' : 
-                             user.status === 'inactif' ? 'Inactif' : 'Suspendu'}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div className="gs-action-buttons" style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button style={{ 
-                            background: 'none',
-                            border: 'none',
-                            color: '#4299E1',
-                            cursor: 'pointer',
-                            padding: '0.5rem',
-                            borderRadius: '50%',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#EBF8FF'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                            <i className="ri-edit-line" style={{ fontSize: '1.2rem' }} />
-                          </button>
-                          
-                          <button style={{ 
-                            background: 'none',
-                            border: 'none',
-                            color: '#F56565',
-                            cursor: 'pointer',
-                            padding: '0.5rem',
-                            borderRadius: '50%',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FFF5F5'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                            <i className="ri-delete-bin-line" style={{ fontSize: '1.2rem' }} />
-                          </button>
-
-                          <button style={{ 
-                            background: 'none',
-                            border: 'none',
-                            color: '#10B981',
-                            cursor: 'pointer',
-                            padding: '0.5rem',
-                            borderRadius: '50%',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ECFDF5'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                            <i className="ri-settings-3-line" style={{ fontSize: '1.2rem' }} />
-                          </button>
-                        </div>
+                        </td>
+                        <td>
+                          <div className="us-utilisateur-cell">
+                            <i className="ri-shield-user-line" />
+                            {utilisateur.role}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="us-utilisateur-cell">
+                            <i className="ri-mail-line" />
+                            {utilisateur.email}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="us-utilisateur-cell">
+                            <i
+                              className={`ri-${
+                                utilisateur.statut === 'Actif'
+                                  ? 'flashlight-fill'
+                                  : utilisateur.statut === 'Inactif'
+                                  ? 'error-warning-fill'
+                                  : 'settings-3-fill'
+                              }`}
+                            />
+                            <span
+                              className={clsx('us-status-badge', {
+                                active: utilisateur.statut === 'Actif',
+                                inactive: utilisateur.statut !== 'Actif',
+                              })}
+                            >
+                              {utilisateur.statut}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="us-utilisateur-cell">
+                            <i
+                              className="ri-database-2-fill"
+                              onClick={handleOpenDataPopup}
+                              title="Accéder aux données de l'utilisateur"
+                              aria-label="Voir les données de l'utilisateur"
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          <div className="us-action-buttons">
+                            <button
+                              className="us-action-btn edit"
+                              onClick={() => handleOpenEditModal(utilisateur)}
+                              aria-label={`Modifier l'utilisateur ${utilisateur.nom}`}
+                            >
+                              <i className="ri-edit-line" />
+                            </button>
+                            <button
+                              className="us-action-btn delete"
+                              onClick={() => handleDeleteUtilisateur(utilisateur._id)}
+                              aria-label={`Supprimer l'utilisateur ${utilisateur.nom}`}
+                            >
+                              <i className="ri-delete-bin-line" />
+                            </button>
+                            <button
+                              className="us-action-btn detail"
+                              title="Voir détails"
+                              aria-label={`Voir les détails de l'utilisateur ${utilisateur.nom}`}
+                            >
+                              <i className="ri-eye-line" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="us-no-utilisateurs">
+                        Aucun utilisateur disponible.
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          
-          <div className="gs-table-footer">
-            <div className="gs-pagination-info">
-              Affichage 1-{filteredUsers.length} sur {filteredUsers.length} utilisateurs
+                  )}
+                </tbody>
+              </table>
             </div>
-            <div className="gs-pagination-controls">
-              <button className="gs-pagination-btn">
+          )}
+
+          <div className="us-table-footer">
+            <div className="us-pagination-info">
+              Affichage {(currentPage - 1) * utilisateursPerPage + 1}-
+              {Math.min(currentPage * utilisateursPerPage, filteredUtilisateurs.length)} sur{' '}
+              {filteredUtilisateurs.length} utilisateur(s)
+            </div>
+            <div className="us-pagination-controls">
+              <button
+                className="us-pagination-btn"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                aria-label="Page précédente"
+              >
                 <i className="ri-arrow-left-s-line"></i>
               </button>
-              <span>1</span>
-              <button className="gs-pagination-btn">
+              <span>{currentPage}</span>
+              <button
+                className="us-pagination-btn"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                aria-label="Page suivante"
+              >
                 <i className="ri-arrow-right-s-line"></i>
               </button>
             </div>
           </div>
         </div>
       </main>
+      {dataPopup && <UtilisateurDataPopup onClose={handleCloseDataPopup} />}
+      <ToastContainer position="top-right" autoClose={3000} />
+    </div>
     </div>
   );
 }
-
 export default Utilisateurs;

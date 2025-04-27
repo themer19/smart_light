@@ -1,307 +1,478 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import clsx from 'clsx';
 import Sidebar from '../components/Sidebar';
-import './cssP/test.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './cssP/Licences.css';
 
 function Licences() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editLicence, setEditLicence] = useState(null);
+  const [dataPopup, setDataPopup] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [licences, setLicences] = useState([
+    { _id: 'licence_1', nom: 'Licence A', type: 'Logiciel', site: { nom: 'Site Alpha' }, dateExpiration: '2025-12-31', statut: 'Active' },
+    { _id: 'licence_2', nom: 'Licence B', type: 'Matériel', site: { nom: 'Site Beta' }, dateExpiration: '2024-06-30', statut: 'Expirée' },
+    { _id: 'licence_3', nom: 'Licence C', type: 'Service', site: { nom: 'Site Gamma' }, dateExpiration: '2026-03-15', statut: 'Active' },
+    { _id: 'licence_4', nom: 'Licence D', type: 'Logiciel', site: { nom: 'Site Alpha' }, dateExpiration: '2025-09-01', statut: 'En attente' },
+    { _id: 'licence_5', nom: 'Licence E', type: 'Matériel', site: { nom: 'Site Delta' }, dateExpiration: '2025-11-20', statut: 'Active' },
+    { _id: 'licence_6', nom: 'Licence F', type: 'Service', site: { nom: 'Site Beta' }, dateExpiration: '2024-12-01', statut: 'Expirée' },
+    { _id: 'licence_7', nom: 'Licence G', type: 'Logiciel', site: { nom: 'Site Gamma' }, dateExpiration: '2026-01-10', statut: 'Active' },
+    { _id: 'licence_8', nom: 'Licence H', type: 'Matériel', site: { nom: 'Site Delta' }, dateExpiration: '2025-07-15', statut: 'En attente' },
+    { _id: 'licence_9', nom: 'Licence I', type: 'Service', site: { nom: 'Site Alpha' }, dateExpiration: '2025-05-30', statut: 'Active' },
+    { _id: 'licence_10', nom: 'Licence J', type: 'Logiciel', site: { nom: 'Site Beta' }, dateExpiration: '2024-08-20', statut: 'Expirée' },
+    { _id: 'licence_11', nom: 'Licence K', type: 'Matériel', site: { nom: 'Site Gamma' }, dateExpiration: '2026-02-28', statut: 'Active' },
+    { _id: 'licence_12', nom: 'Licence L', type: 'Service', site: { nom: 'Site Delta' }, dateExpiration: '2025-10-05', statut: 'En attente' },
+  ]);
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Données de démonstration pour les licences
-  const licences = [
-    {
-      id: 1,
-      logiciel: 'Adobe Creative Cloud',
-      type: 'Abonnement',
-      cle: 'ADB-CC-2023-XXXX',
-      sites: 3,
-      expiration: '2023-12-31',
-      status: 'active'
-    },
-    {
-      id: 2,
-      logiciel: 'Microsoft Office 365',
-      type: 'Entreprise',
-      cle: 'MS-365-ENT-XXXX',
-      sites: 15,
-      expiration: '2024-06-30',
-      status: 'active'
-    },
-    {
-      id: 3,
-      logiciel: 'AutoCAD 2023',
-      type: 'Perpétuelle',
-      cle: 'AUTOD-23-PERP-XX',
-      sites: 2,
-      expiration: 'Illimitée',
-      status: 'expiree'
-    },
-    {
-      id: 4,
-      logiciel: 'Windows Server 2019',
-      type: 'Volume',
-      cle: 'WIN-SRV-2019-XX',
-      sites: 5,
-      expiration: '2025-01-15',
-      status: 'active'
-    },
-    {
-      id: 5,
-      logiciel: 'VMware vSphere',
-      type: 'Abonnement',
-      cle: 'VMW-VS-ENT-XXXX',
-      sites: 8,
-      expiration: '2023-09-30',
-      status: 'bientot_expiree'
-    }
-  ];
+  const [currentPage, setCurrentPage] = useState(1);
+  const licencesPerPage = 10;
 
-  const filteredLicences = licences.filter(licence => 
-    licence.logiciel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    licence.cle.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false);
+      }
+    };
 
-  const getStatusStyle = (status) => {
-    switch(status) {
-      case 'active':
-        return { bg: '#D1FAE5', text: '#065F46', icon: 'ri-checkbox-circle-fill', color: '#10B981' };
-      case 'expiree':
-        return { bg: '#FEE2E2', text: '#991B1B', icon: 'ri-close-circle-fill', color: '#EF4444' };
-      case 'bientot_expiree':
-        return { bg: '#FEF3C7', text: '#92400E', icon: 'ri-alert-fill', color: '#F59E0B' };
-      default:
-        return { bg: '#E5E7EB', text: '#1F2937', icon: 'ri-question-fill', color: '#6B7280' };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const filteredLicences = useMemo(() => {
+    return licences.filter(
+      (licence) =>
+        licence.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        licence.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (licence.site?.nom || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [licences, searchTerm]);
+
+  const totalPages = Math.ceil(filteredLicences.length / licencesPerPage);
+  const paginatedLicences = useMemo(() => {
+    const startIndex = (currentPage - 1) * licencesPerPage;
+    return filteredLicences.slice(startIndex, startIndex + licencesPerPage);
+  }, [filteredLicences, currentPage]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
   };
 
+  const handleOpenDataPopup = () => {
+    setDataPopup(false);
+    setTimeout(() => {
+      setDataPopup(true);
+    }, 10);
+  };
+
+  const handleCloseDataPopup = () => {
+    setDataPopup(false);
+  };
+
+  const handleSaveLicence = (licenceData) => {
+    try {
+      const newLicence = {
+        ...licenceData,
+        _id: `licence_${Date.now()}`,
+        site: { nom: licenceData.site || 'Site non attribué' },
+      };
+      setLicences([...licences, newLicence]);
+      toast.success('Licence créée avec succès !');
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error('🚨 Une erreur est survenue lors de la création de la licence');
+      console.error('Erreur:', error);
+    }
+  };
+
+  const handleEditLicence = (licenceData) => {
+    try {
+      const updatedLicences = licences.map((licence) =>
+        licence._id === editLicence._id
+          ? { ...licenceData, _id: editLicence._id, site: { nom: licenceData.site || 'Site non attribué' } }
+          : licence
+      );
+      setLicences(updatedLicences);
+      toast.success('Licence modifiée avec succès !');
+      setIsEditModalOpen(false);
+      setEditLicence(null);
+    } catch (error) {
+      toast.error('🚨 Une erreur est survenue lors de la modification de la licence');
+      console.error('Erreur:', error);
+    }
+  };
+
+  const handleDeleteLicence = (licenceId) => {
+    try {
+      setLicences(licences.filter((licence) => licence._id !== licenceId));
+      toast.success('Licence supprimée avec succès !');
+    } catch (error) {
+      toast.error('🚨 Une erreur est survenue lors de la suppression de la licence');
+      console.error('Erreur:', error);
+    }
+  };
+
+  const handleSidebarToggle = (isOpen) => {
+    setSidebarOpen(isOpen);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setCurrentPage(1);
+  };
+
+  const handleOpenEditModal = (licence) => {
+    setEditLicence(licence);
+    setIsEditModalOpen(true);
+  };
+
   return (
-    <div className="gs-container">
-      <Sidebar />
-      <main className="gs-main-content">
-        <div className="gs-dashboard-card">
-          {/* En-tête */}
-          <div className="gs-page-header">
-            <div className="gs-header-content">
-              <div className="gs-title-wrapper">
-                <div className="gs-title-icon-container" style={{background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'}}>
-                  <i className="ri-key-2-line gs-main-icon"></i>
+    <div className='licences-page'>
+    <div className="lc-container" style={{ display: 'flex', minHeight: '100vh' }}>
+      <Sidebar
+        onToggle={handleSidebarToggle}
+        className={clsx('lc-sidebar', {
+          'lc-sidebar-open': sidebarOpen,
+          'lc-sidebar-collapsed': !sidebarOpen,
+        })}
+      />
+      <main
+        className={clsx('lc-main-content', {
+          'lc-sidebar-collapsed': !sidebarOpen || isMobile,
+        })}
+        style={{
+          flex: 1,
+          marginLeft: 0,
+          paddingLeft: 0,
+          marginTop: '2rem',
+        }}
+      >
+        <div className="lc-dashboard-card">
+          <div className="lc-page-header">
+            <div className="lc-header-content">
+              <div className="lc-title-wrapper">
+                <div className="lc-title-icon-container">
+                  <i className="ri-file-text-line lc-main-icon"></i>
                 </div>
                 <div>
-                  <h1 className="gs-main-title">
+                  <h1 className="lc-main-title">
                     Gestionnaire de Licences
-                    <span className="gs-title-underline" style={{background: 'linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%)'}}></span>
+                    <span className="lc-title-underline"></span>
                   </h1>
-                  <p className="gs-subtitle">Suivez et contrôlez toutes vos licences logicielles</p>
+                  <p className="lc-subtitle">Administrez l'ensemble de vos licences</p>
                 </div>
               </div>
-              <button className="gs-add-site-btn gs-btn-primary" style={{background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'}}>
-                <i className="ri-file-add-line"></i>
+              <button
+                className="lc-add-licence-btn lc-btn-primary"
+                onClick={() => setIsModalOpen(true)}
+                aria-label="Ajouter une nouvelle licence"
+              >
+                <i className="ri-add-circle-line"></i>
                 <span>Nouvelle licence</span>
               </button>
+              {isModalOpen && (
+                <AddLicenceModal onClose={() => setIsModalOpen(false)} onSave={handleSaveLicence} />
+              )}
+              {isEditModalOpen && (
+                <AddLicenceModal
+                  onClose={() => {
+                    setIsEditModalOpen(false);
+                    setEditLicence(null);
+                  }}
+                  onSave={handleEditLicence}
+                  initialData={editLicence}
+                />
+              )}
             </div>
           </div>
 
-          {/* Section Liste */}
-          <div className="gs-card-header">
-            <div className="gs-list-header-wrapper">
-              <div className="gs-list-title-container">
-                <i className="ri-license-line gs-list-icon" style={{color: '#3b82f6', backgroundColor: '#dbeafe'}}></i>
-                <h2 className="gs-list-title">
-                  Licences Actives
-                  <span className="gs-site-count" style={{backgroundColor: '#dbeafe', color: '#1d4ed8'}}>
-                    {licences.length} licence{licences.length !== 1 ? 's' : ''}
-                  </span>
+          <div className="lc-card-header">
+            <div className="lc-list-header-wrapper">
+              <div className="lc-list-title-container">
+                <i className="ri-table-2 lc-list-icon"></i>
+                <h2 className="lc-list-title">
+                  Liste des Licences
+                  <span className="lc-licence-count">{filteredLicences.length} licence(s)</span>
                 </h2>
               </div>
-              <div className="gs-search-filter-container">
-                <div className="gs-search-box">
-                  <i className="ri-search-line gs-search-icon"></i>
-                  <input 
-                    type="text" 
-                    placeholder="Rechercher une licence..." 
-                    className="gs-search-input"
+              <div className="lc-search-filter-container">
+                <div className="lc-search-box">
+                  <i className="ri-search-line lc-search-icon"></i>
+                  <input
+                    id="licence-search"
+                    type="text"
+                    placeholder="Rechercher une licence..."
+                    className="lc-search-input"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={handleSearchChange}
                   />
                   {searchTerm && (
-                    <i 
-                      className="ri-close-line gs-clear-icon" 
-                      onClick={() => setSearchTerm('')}
-                      style={{ cursor: 'pointer' }}
-                    />
+                    <i
+                      className="ri-close-line lc-clear-icon"
+                      onClick={handleClearSearch}
+                      aria-label="Effacer la recherche"
+                    ></i>
                   )}
                 </div>
-                <div className="gs-filter-group">
-                  <button className="gs-filter-btn gs-btn-secondary">
+                <div className="lc-filter-group">
+                  <button className="lc-btn-secondary" aria-label="Filtrer les licences">
                     <i className="ri-filter-3-line"></i>
                     <span>Filtrer</span>
                   </button>
-                  <button className="gs-sort-btn gs-btn-secondary">
+                  <button
+                    className="lc-sort-btn lc-btn-secondary"
+                    aria-label="Trier les licences"
+                  >
                     <i className="ri-arrow-up-down-line"></i>
                   </button>
                 </div>
               </div>
             </div>
           </div>
-          
-          {/* Tableau des licences */}
-          <div className="gs-table-responsive">
-            <table className="gs-sites-table">
-              <thead>
-                <tr>
-                  <th>Logiciel</th>
-                  <th>Type</th>
-                  <th>Clé de licence</th>
-                  <th>Sites</th>
-                  <th>Expiration</th>
-                  <th>Statut</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLicences.map((licence) => {
-                  const statusStyle = getStatusStyle(licence.status);
-                  return (
-                    <tr key={licence.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <i className="ri-computer-line" style={{ 
-                            color: '#3B82F6', 
-                            marginRight: '8px',
-                            fontSize: '1.2rem'
-                          }} />
-                          {licence.logiciel}
-                        </div>
-                      </td>
-                      
-                      <td>
-                        <span style={{
-                          padding: '4px 8px',
-                          borderRadius: '6px',
-                          backgroundColor: '#EFF6FF',
-                          color: '#1D4ED8',
-                          fontSize: '0.85rem',
-                          fontWeight: 500
-                        }}>
-                          {licence.type}
+
+          {isMobile ? (
+            <div className="lc-licence-cards">
+              {paginatedLicences.length > 0 ? (
+                paginatedLicences.map((licence, i) => (
+                  <div className="lc-licence-card" key={licence._id}>
+                    <div className="lc-licence-card-header">
+                      <div className="lc-licence-card-title">
+                        <span className="lc-licence-number">{(currentPage - 1) * licencesPerPage + i + 1}.</span>
+                        <i className="ri-file-text-line" />
+                        <span>{licence.nom}</span>
+                      </div>
+                    </div>
+                    <div className="lc-licence-card-body">
+                      <div className="lc-licence-card-item">
+                        <i className="ri-home-4-line" />
+                        <span>{licence.site?.nom || 'Site non attribué'}</span>
+                      </div>
+                      <div className="lc-licence-card-item">
+                        <i className="ri-cpu-line" />
+                        <span>{licence.type}</span>
+                      </div>
+                      <div className="lc-licence-card-item">
+                        <i className="ri-calendar-line" />
+                        <span>{licence.dateExpiration}</span>
+                      </div>
+                      <div className="lc-licence-card-item">
+                        <i
+                          className={`ri-${
+                            licence.statut === 'Active'
+                              ? 'flashlight-fill'
+                              : licence.statut === 'Expirée'
+                              ? 'error-warning-fill'
+                              : 'settings-3-fill'
+                          }`}
+                        />
+                        <span
+                          className={clsx('lc-status-badge', {
+                            active: licence.statut === 'Active',
+                            inactive: licence.statut !== 'Active',
+                          })}
+                        >
+                          {licence.statut}
                         </span>
-                      </td>
-
-                      <td>
-                        <div style={{ 
-                          fontFamily: 'monospace',
-                          color: '#6B7280',
-                          fontSize: '0.9rem'
-                        }}>
-                          {licence.cle}
-                        </div>
-                      </td>
-
-                      <td>
-                        <div style={{ 
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '50%',
-                          backgroundColor: '#E0E7FF',
-                          color: '#4F46E5',
-                          fontWeight: 600
-                        }}>
-                          {licence.sites}
-                        </div>
-                      </td>
-
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <i className="ri-calendar-line" style={{ 
-                            color: '#6B7280',
-                            marginRight: '8px'
-                          }} />
-                          {licence.expiration}
-                        </div>
-                      </td>
-
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <i
-                            className={statusStyle.icon}
-                            style={{
-                              color: statusStyle.color,
-                              marginRight: '8px',
-                              fontSize: '1.2rem'
-                            }}
-                          />
-                          <span
-                            style={{
-                              padding: '4px 10px',
-                              borderRadius: '9999px',
-                              fontSize: '0.75rem',
-                              fontWeight: 600,
-                              backgroundColor: statusStyle.bg,
-                              color: statusStyle.text,
-                              textTransform: 'capitalize'
-                            }}
-                          >
-                            {licence.status === 'active' ? 'Active' : 
-                             licence.status === 'expiree' ? 'Expirée' : 'Bientôt expirée'}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div className="gs-action-buttons" style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button style={{ 
-                            background: 'none',
-                            border: 'none',
-                            color: '#4299E1',
-                            cursor: 'pointer',
-                            padding: '0.5rem',
-                            borderRadius: '50%',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#EBF8FF'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                            <i className="ri-edit-line" style={{ fontSize: '1.2rem' }} />
-                          </button>
-                          
-                          <button style={{ 
-                            background: 'none',
-                            border: 'none',
-                            color: '#F56565',
-                            cursor: 'pointer',
-                            padding: '0.5rem',
-                            borderRadius: '50%',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FFF5F5'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                            <i className="ri-delete-bin-line" style={{ fontSize: '1.2rem' }} />
-                          </button>
-                        </div>
+                      </div>
+                      <div className="lc-licence-card-item">
+                        <i
+                          className="ri-database-2-fill"
+                          onClick={handleOpenDataPopup}
+                          title="Accéder aux données techniques"
+                          aria-label="Voir les données techniques"
+                        />
+                        <span>Data</span>
+                      </div>
+                    </div>
+                    <div className="lc-licence-card-footer">
+                      <div className="lc-action-buttons">
+                        <button
+                          className="lc-action-btn edit"
+                          onClick={() => handleOpenEditModal(licence)}
+                          aria-label={`Modifier la licence ${licence.nom}`}
+                        >
+                          <i className="ri-edit-line" />
+                        </button>
+                        <button
+                          className="lc-action-btn delete"
+                          onClick={() => handleDeleteLicence(licence._id)}
+                          aria-label={`Supprimer la licence ${licence.nom}`}
+                        >
+                          <i className="ri-delete-bin-line" />
+                        </button>
+                        <button
+                          className="lc-action-btn detail"
+                          title="Voir détails"
+                          aria-label={`Voir les détails de la licence ${licence.nom}`}
+                        >
+                          <i className="ri-eye-line" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="lc-no-licences">Aucune licence disponible.</div>
+              )}
+            </div>
+          ) : (
+            <div className="lc-table-responsive">
+              <table className="lc-licences-table">
+                <thead>
+                  <tr>
+                    <th>Nom de la Licence</th>
+                    <th>Site associé</th>
+                    <th>Type</th>
+                    <th>Date d'Expiration</th>
+                    <th>Statut</th>
+                    <th>Data</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedLicences.length > 0 ? (
+                    paginatedLicences.map((licence, i) => (
+                      <tr key={licence._id}>
+                        <td>
+                          <div className="lc-licence-name">
+                            <span className="lc-licence-number">{(currentPage - 1) * licencesPerPage + i + 1}.</span>
+                            <i className="ri-file-text-line" />
+                            <div>
+                              <span>{licence.nom}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="lc-licence-cell">
+                            <i className="ri-home-4-line" />
+                            {licence.site?.nom || 'Site non attribué'}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="lc-licence-cell">
+                            <i className="ri-cpu-line" />
+                            {licence.type}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="lc-licence-cell">
+                            <i className="ri-calendar-line" />
+                            {licence.dateExpiration}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="lc-licence-cell">
+                            <i
+                              className={`ri-${
+                                licence.statut === 'Active'
+                                  ? 'flashlight-fill'
+                                  : licence.statut === 'Expirée'
+                                  ? 'error-warning-fill'
+                                  : 'settings-3-fill'
+                              }`}
+                            />
+                            <span
+                              className={clsx('lc-status-badge', {
+                                active: licence.statut === 'Active',
+                                inactive: licence.statut !== 'Active',
+                              })}
+                            >
+                              {licence.statut}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="lc-licence-cell">
+                            <i
+                              className="ri-database-2-fill"
+                              onClick={handleOpenDataPopup}
+                              title="Accéder aux données techniques"
+                              aria-label="Voir les données techniques"
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          <div className="lc-action-buttons">
+                            <button
+                              className="lc-action-btn edit"
+                              onClick={() => handleOpenEditModal(licence)}
+                              aria-label={`Modifier la licence ${licence.nom}`}
+                            >
+                              <i className="ri-edit-line" />
+                            </button>
+                            <button
+                              className="lc-action-btn delete"
+                              onClick={() => handleDeleteLicence(licence._id)}
+                              aria-label={`Supprimer la licence ${licence.nom}`}
+                            >
+                              <i className="ri-delete-bin-line" />
+                            </button>
+                            <button
+                              className="lc-action-btn detail"
+                              title="Voir détails"
+                              aria-label={`Voir les détails de la licence ${licence.nom}`}
+                            >
+                              <i className="ri-eye-line" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="lc-no-licences">
+                        Aucune licence disponible.
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          
-          <div className="gs-table-footer">
-            <div className="gs-pagination-info">
-              Affichage 1-{filteredLicences.length} sur {filteredLicences.length} licences
+                  )}
+                </tbody>
+              </table>
             </div>
-            <div className="gs-pagination-controls">
-              <button className="gs-pagination-btn">
+          )}
+
+          <div className="lc-table-footer">
+            <div className="lc-pagination-info">
+              Affichage {(currentPage - 1) * licencesPerPage + 1}-
+              {Math.min(currentPage * licencesPerPage, filteredLicences.length)} sur{' '}
+              {filteredLicences.length} licence(s)
+            </div>
+            <div className="lc-pagination-controls">
+              <button
+                className="lc-pagination-btn"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                aria-label="Page précédente"
+              >
                 <i className="ri-arrow-left-s-line"></i>
               </button>
-              <span>1</span>
-              <button className="gs-pagination-btn">
+              <span>{currentPage}</span>
+              <button
+                className="lc-pagination-btn"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                aria-label="Page suivante"
+              >
                 <i className="ri-arrow-right-s-line"></i>
               </button>
             </div>
           </div>
         </div>
       </main>
+      {dataPopup && <LicenceDataPopup onClose={handleCloseDataPopup} />}
+      <ToastContainer position="top-right" autoClose={3000} />
+    </div>
     </div>
   );
 }
