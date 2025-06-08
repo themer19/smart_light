@@ -706,3 +706,59 @@ body {
   clip: rect(0, 0, 0, 0);
   border: 0;
 }
+.pt-luminosite-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.pt-luminosite-bar {
+  height: 8px;
+  background-color: #FFD700; /* Jaune */
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.pt-poteau-cell .pt-luminosite-container {
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  padding: 2px;
+  width: 100px; /* Largeur fixe pour le tableau */
+}
+
+.pt-poteau-card-item .pt-luminosite-container {
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  padding: 2px;
+  width: 80%; /* Largeur relative pour les cartes */
+}
+
+/* Autres styles existants (à adapter selon votre Poteaux.css actuel) */
+.pt-poteau-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pt-poteau-card-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.pt-loading {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.2rem;
+  color: #666;
+}
+.p-toast {
+  background: white !important;
+  color: black !important;
+  border: 1px solid #ccc !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+.p-toast-message {
+  background: white !important;
+  color: black !important;
+}

@@ -1,0 +1,388 @@
+.poteaux-modal-overlay,
+.poteaux-edit-overlay,
+.poteaux-details-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.poteaux-modal-container,
+.poteaux-edit-container,
+.poteaux-details-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* En-tête */
+.poteaux-modal-header,
+.poteaux-edit-header,
+.poteaux-details-header {
+  padding: 18px 24px;
+  background: linear-gradient(135deg, #6a11cb 0%, #03e706 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.poteaux-modal-header h2,
+.poteaux-edit-header h2,
+.poteaux-details-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.poteaux-modal-header .ri-lightbulb-line,
+.poteaux-edit-header .ri-lightbulb-line,
+.poteaux-details-header .ri-lightbulb-line {
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+.poteaux-modal-close-btn,
+.poteaux-edit-close-btn,
+.poteaux-details-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.poteaux-modal-close-btn:hover,
+.poteaux-edit-close-btn:hover,
+.poteaux-details-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.poteaux-modal-close-btn .ri-close-line,
+.poteaux-edit-close-btn .ri-close-line,
+.poteaux-details-close-btn .ri-close-line {
+  font-size: 1rem;
+}
+
+/* Onglets */
+.poteaux-modal-tabs,
+.poteaux-edit-tabs,
+.poteaux-details-tabs {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f8f8;
+}
+
+.poteaux-modal-tab,
+.poteaux-edit-tab,
+.poteaux-details-tab {
+  padding: 14px 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #555;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.poteaux-modal-tab:hover,
+.poteaux-edit-tab:hover,
+.poteaux-details-tab:hover {
+  color: #03e706;
+}
+
+.poteaux-modal-tab.active,
+.poteaux-edit-tab.active,
+.poteaux-details-tab.active {
+  border-bottom-color: #03e706;
+  color: #03e706;
+  font-weight: 600;
+  background: white;
+}
+
+/* Contenu */
+.poteaux-modal-content,
+.poteaux-edit-content,
+.poteaux-details-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Formulaire */
+.poteaux-modal-form,
+.poteaux-details-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.poteaux-modal-form-group,
+.poteaux-details-form-group {
+  margin-bottom: 20px;
+}
+
+.poteaux-modal-form-group label,
+.poteaux-details-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #444;
+  font-size: 0.9rem;
+}
+
+.poteaux-modal-input-icon-wrapper,
+.poteaux-details-value-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.poteaux-modal-input-icon-wrapper .ri-align-left,
+.poteaux-modal-input-icon-wrapper .ri-barcode-line,
+.poteaux-modal-input-icon-wrapper .ri-building-4-line,
+.poteaux-modal-input-icon-wrapper .ri-git-branch-line,
+.poteaux-modal-input-icon-wrapper .ri-checkbox-circle-line,
+.poteaux-modal-input-icon-wrapper .ri-sun-line,
+.poteaux-details-value-wrapper .ri-align-left,
+.poteaux-details-value-wrapper .ri-barcode-line,
+.poteaux-details-value-wrapper .ri-building-4-line,
+.poteaux-details-value-wrapper .ri-git-branch-line,
+.poteaux-details-value-wrapper .ri-checkbox-circle-line,
+.poteaux-details-value-wrapper .ri-sun-line {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+.poteaux-modal-form-group input,
+.poteaux-modal-form-group .p-dropdown {
+  width: 100%;
+  padding: 10px 10px 10px 36px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  height: 44px;
+  box-sizing: border-box;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.poteaux-modal-form-group .p-dropdown-label {
+  padding: 10px 10px 10px 36px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.poteaux-modal-form-group input:focus,
+.poteaux-modal-form-group .p-dropdown:focus {
+  border-color: #03e706;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(3, 231, 6, 0.2);
+}
+
+.poteaux-details-value {
+  display: block;
+  padding: 10px 10px 10px 36px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  height: 44px;
+  line-height: 24px;
+  background: #f8f8f8;
+  color: #444;
+  margin: 0;
+}
+
+/* Carte */
+.poteaux-modal-map-section,
+.poteaux-edit-map-section,
+.poteaux-details-map-section {
+  margin-top: 20px;
+}
+
+.poteaux-modal-map-container,
+.poteaux-edit-map-container,
+.poteaux-details-map-container {
+  height: 400px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+.poteaux-modal-coordinates-info,
+.poteaux-edit-coordinates-info,
+.poteaux-details-coordinates-info {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f8fff8;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #444;
+  border: 1px solid #d0f0d0;
+}
+
+/* Pied de page */
+.poteaux-modal-footer,
+.poteaux-edit-footer,
+.poteaux-details-footer {
+  padding: 16px 24px;
+  background: #f8f8f8;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.poteaux-modal-cancel-btn,
+.poteaux-modal-submit-btn,
+.poteaux-edit-cancel-btn,
+.poteaux-details-close-btn {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1rem;
+}
+
+.poteaux-modal-cancel-btn,
+.poteaux-edit-cancel-btn,
+.poteaux-details-close-btn {
+  background: white;
+  border: 1px solid #ddd;
+  color: #555;
+}
+
+.poteaux-modal-cancel-btn:hover,
+.poteaux-edit-cancel-btn:hover,
+.poteaux-details-close-btn:hover {
+  background: #f0f0f0;
+  border-color: #ccc;
+}
+
+.poteaux-modal-submit-btn {
+  background: #03e706;
+  color: white;
+  border: none;
+}
+
+.poteaux-modal-submit-btn:hover {
+  background: #02c705;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(3, 231, 6, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .poteaux-modal-container,
+  .poteaux-edit-container,
+  .poteaux-details-container {
+    width: 95%;
+  }
+
+  .poteaux-modal-content,
+  .poteaux-edit-content,
+  .poteaux-details-content {
+    padding: 16px;
+  }
+
+  .poteaux-modal-header,
+  .poteaux-edit-header,
+  .poteaux-details-header {
+    padding: 14px 16px;
+  }
+
+  .poteaux-modal-header h2,
+  .poteaux-edit-header h2,
+  .poteaux-details-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .poteaux-modal-form-row,
+  .poteaux-details-form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .poteaux-modal-form-group,
+  .poteaux-details-form-group {
+    min-width: 100%;
+  }
+
+  .poteaux-modal-form-group input,
+  .poteaux-modal-form-group .p-dropdown,
+  .poteaux-details-value {
+    padding: 10px 10px 10px 36px;
+    height: 44px;
+    font-size: 0.9rem;
+  }
+
+  .poteaux-modal-form-group .p-dropdown-label {
+    padding: 10px 10px 10px 36px;
+    height: 44px;
+    font-size: 0.9rem;
+  }
+
+  .poteaux-modal-input-icon-wrapper .ri-align-left,
+  .poteaux-modal-input-icon-wrapper .ri-barcode-line,
+  .poteaux-modal-input-icon-wrapper .ri-building-4-line,
+  .poteaux-modal-input-icon-wrapper .ri-git-branch-line,
+  .poteaux-modal-input-icon-wrapper .ri-checkbox-circle-line,
+  .poteaux-modal-input-icon-wrapper .ri-sun-line,
+  .poteaux-details-value-wrapper .ri-align-left,
+  .poteaux-details-value-wrapper .ri-barcode-line,
+  .poteaux-details-value-wrapper .ri-building-4-line,
+  .poteaux-details-value-wrapper .ri-git-branch-line,
+  .poteaux-details-value-wrapper .ri-checkbox-circle-line,
+  .poteaux-details-value-wrapper .ri-sun-line {
+    font-size: 0.9rem;
+  }
+
+  .poteaux-modal-footer,
+  .poteaux-edit-footer,
+  .poteaux-details-footer {
+    padding: 12px 16px;
+  }
+
+  .poteaux-modal-tab,
+  .poteaux-edit-tab,
+  .poteaux-details-tab {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+
+  .poteaux-modal-map-container,
+  .poteaux-edit-map-container,
+  .poteaux-details-map-container {
+    height: 300px;
+  }
+}

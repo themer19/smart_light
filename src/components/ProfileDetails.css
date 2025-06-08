@@ -1,0 +1,402 @@
+/* Variables CSS pour la cohérence */
+:root {
+  --primary-color: #667eea;
+  --accent-color: #03e7e7;
+  --text-color: #2d3748;
+  --text-muted: #a0aec0;
+  --border-color: #e2e8f0;
+  --bg-light: #f8fafc;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --radius: 0.5rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+}
+
+/* Layout global */
+.profile-details-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.profile-details-container {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* En-tête */
+.profile-details-header {
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, #6a11cb, var(--accent-color));
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-details-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.header-icon {
+  font-size: 1.2rem;
+  margin-right: var(--spacing-sm);
+}
+
+.profile-details-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.profile-details-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.profile-details-close-btn.secondary {
+  background: var(--border-color);
+  color: var(--text-color);
+}
+
+.profile-details-close-btn.secondary:hover {
+  background: #d1d9e6;
+  transform: none;
+}
+
+/* Contenu principal */
+.profile-details-content {
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.profile-details-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.profile-details-content::-webkit-scrollbar-track {
+  background: var(--bg-light);
+  border-radius: var(--radius);
+}
+
+.profile-details-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: var(--radius);
+}
+
+.profile-details-content::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Formulaire et sections */
+.profile-details-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.profile-details-profile-picture {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.profile-details-profile-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.profile-details-profile-image:hover {
+  transform: scale(1.03);
+  box-shadow: var(--shadow-md);
+}
+
+.profile-details-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.profile-details-section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: var(--spacing-sm) 0 var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--border-color);
+}
+
+/* Champs */
+.profile-details-field-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.profile-details-field {
+  position: relative;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.profile-details-value {
+  position: relative;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background-color: white;
+  font-size: 0.9375rem;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+}
+
+.profile-details-value:hover {
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-md);
+}
+
+.field-icon {
+  position: absolute;
+  left: var(--spacing-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-color);
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.profile-details-value:hover .field-icon {
+  color: var(--accent-color);
+}
+
+.field-value {
+  flex: 1;
+}
+
+.profile-details-value-empty {
+  color: var(--text-muted);
+  font-style: italic;
+  background-color: var(--bg-light);
+}
+
+.profile-details-status-badge {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+}
+
+.profile-details-status-badge.active {
+  background: linear-gradient(to right, #48bb78, #38a169);
+}
+
+.profile-details-status-badge.inactive {
+  background: linear-gradient(to right, #f56565, #e53e3e);
+}
+
+/* Liste déroulante des licences */
+.licence-select-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.licence-select-container {
+  position: relative;
+  width: 100%;
+}
+
+.licence-select {
+  width: 100%;
+  padding: var(--spacing-sm) 2.5rem var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background-color: white;
+  color: var(--text-color);
+  font-size: 0.9375rem;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right var(--spacing-md) center;
+  background-size: 1rem;
+}
+
+.licence-select:hover {
+  border-color: var(--primary-color);
+}
+
+.licence-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.licence-select-icon {
+  position: absolute;
+  right: var(--spacing-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-color);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.licence-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.licence-detail-item {
+  display: block;
+}
+
+.licence-count-badge {
+  align-self: flex-end;
+  background-color: var(--bg-light);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  color: var(--text-color);
+}
+
+/* Pied de page */
+.profile-details-footer {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--bg-light);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+}
+
+.profile-details-edit-btn {
+  background: linear-gradient(to right, #11a6cb, var(--accent-color));
+  color: white;
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-details-edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .profile-details-container {
+    width: 95%;
+  }
+
+  .profile-details-content {
+    padding: var(--spacing-md);
+  }
+
+  .profile-details-header {
+    padding: var(--spacing-md);
+  }
+
+  .profile-details-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .profile-details-profile-image {
+    width: 100px;
+    height: 100px;
+  }
+
+  .profile-details-field-list {
+    gap: var(--spacing-sm);
+  }
+
+  .profile-details-value {
+    padding: var(--spacing-sm);
+    font-size: 0.875rem;
+  }
+
+  .field-icon {
+    font-size: 0.875rem;
+    left: var(--spacing-sm);
+  }
+
+  .licence-select {
+    padding: var(--spacing-sm) 2rem var(--spacing-sm) var(--spacing-sm);
+    font-size: 0.875rem;
+  }
+
+  .licence-select-icon {
+    right: var(--spacing-sm);
+  }
+
+  .licence-count-badge {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-details-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .profile-details-section-title {
+    font-size: 1rem;
+  }
+
+  .profile-details-value {
+    min-height: 2.5rem;
+  }
+}

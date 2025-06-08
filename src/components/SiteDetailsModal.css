@@ -1,0 +1,235 @@
+/* Section: Overlay and Container */
+.site-details-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.site-details-modal-container {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Section: Header */
+.site-details-modal-header {
+  background: linear-gradient(135deg, #6a11cb 0%, #1ef33e 100%);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #ffffff;
+}
+
+.site-details-title-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.site-details-main-icon {
+  font-size: 28px;
+}
+
+.site-details-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.site-details-close-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.site-details-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Section: Body and Cards */
+.site-details-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  scrollbar-width: thin;
+  scrollbar-color: #1ef33e #f1f1f1;
+}
+
+.site-details-modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.site-details-modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.site-details-modal-body::-webkit-scrollbar-thumb {
+  background: #1ef33e;
+  border-radius: 4px;
+}
+
+.site-details-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #1ef33e;
+}
+
+.site-details-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.site-details-card.primary-card {
+  background: #e6f4fa;
+}
+
+.site-details-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.site-details-card-icon {
+  font-size: 20px;
+  color: #1ef33e;
+}
+
+.site-details-card-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.site-details-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Section: Detail Items */
+.site-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.site-detail-item.small {
+  font-size: 0.9rem;
+}
+
+.site-detail-icon {
+  font-size: 20px;
+  color: #6a11cb;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.site-detail-content {
+  flex: 1;
+}
+
+.site-detail-label {
+  font-size: 0.9rem;
+  color: #666;
+  display: block;
+}
+
+.site-detail-value {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.site-detail-value.status-active {
+  color: #28a745;
+}
+
+.site-detail-value.status-warning {
+  color: #dc3545;
+}
+
+.site-detail-value.status-maintenance {
+  color: #fd7e14;
+}
+
+.site-details-coords-container {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Section: Footer */
+.site-details-modal-footer {
+  padding: 16px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.site-details-close-button {
+  background: #1ef33e;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.site-details-close-button:hover {
+  background: #1ef33e;
+  transform: translateY(-1px);
+}
+
+/* Section: Responsive Design */
+@media (max-width: 768px) {
+  .site-details-modal-container {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .site-details-modal-header {
+    padding: 16px;
+  }
+
+  .site-details-modal-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .site-details-modal-body {
+    padding: 16px;
+  }
+
+  .site-details-card {
+    padding: 12px;
+  }
+
+  .site-details-coords-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

@@ -15,7 +15,7 @@ import Utilisateurs from "./pages/Utilisateurs";
 import Statistics from "./pages/Statistics";
 import Maps from "./pages/Maps";
 import Accueil from "./pages/Accueil";
-import Test3 from "./components/test3"
+import EnergyDashboard from "./pages/EnergyDashboard";
 function App() {
   return (
     <>
@@ -34,7 +34,8 @@ function App() {
           <Route path="/Statistics" element={<Statistics />} />
           <Route path="/Maps" element={<Maps />} />
           <Route path="/Accueil" element={<Accueil />} />
-          <Route path="/test3" element={<Test3 />} />
+                    <Route path="/EnergyDashboard" element={<EnergyDashboard />} />
+
 
         </Routes>
       </BrowserRouter>

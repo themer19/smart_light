@@ -55,7 +55,7 @@ const Sidebar = () => {
       items: [
         { icon: "ri-home-4-fill", text: "Accueil", path: "/Accueil" },
         { icon: "ri-map-line", text: "Gestion des sites", path: "/Sites" },
-        { icon: "ri-map-pin-line", text: "Gestionnaire de lignes", path: "/Lignes" },
+        { icon:  "ri-route-line", text: "Gestionnaire de lignes", path: "/Lignes" },
         { icon: "ri-lightbulb-flash-line", text: "Poteaux d'éclairage", path: "/Poteaux" },
         { icon: "ri-bar-chart-box-fill", text: "Statistics", path: "/Statistics" },
         { icon: "ri-lightbulb-line", text: "Gestionnaire d'éclairage", path: "/Eclairage" },

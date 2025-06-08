@@ -1,0 +1,241 @@
+
+.delete-poteau-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.delete-poteau-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.delete-poteau-header {
+  padding: 18px 24px;
+  background: linear-gradient(135deg, #ef4444 0%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.delete-poteau-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.delete-poteau-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.delete-poteau-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.delete-poteau-close-btn i {
+  font-size: 1.2rem;
+}
+
+.delete-poteau-form-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.delete-poteau-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.delete-poteau-section {
+  margin-bottom: 24px;
+}
+
+.delete-poteau-section-title {
+  margin: 0 0 16px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.delete-poteau-warning {
+  color: #ef4444;
+  font-weight: 500;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.delete-poteau-form-group {
+  margin-bottom: 16px;
+}
+
+.delete-poteau-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #444;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.delete-poteau-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.delete-poteau-textarea:focus {
+  border-color: #ef4444;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.delete-poteau-footer {
+  padding: 16px 24px;
+  background: #f8f8f8;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  border-top: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.delete-poteau-cancel-btn,
+.delete-poteau-confirm-btn {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.delete-poteau-cancel-btn {
+  background: white;
+  border: 1px solid #ddd;
+  color: #555;
+}
+
+.delete-poteau-cancel-btn:hover {
+  background: #f0f0f0;
+  border-color: #ccc;
+}
+
+.delete-poteau-confirm-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+}
+
+.delete-poteau-confirm-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.delete-poteau-confirm-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.delete-poteau-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.delete-poteau-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.delete-poteau-content::-webkit-scrollbar-thumb {
+  background: #ef4444;
+  border-radius: 4px;
+}
+
+.delete-poteau-content::-webkit-scrollbar-thumb:hover {
+  background: #dc2626;
+}
+
+.delete-poteau-content {
+  scrollbar-width: thin;
+  scrollbar-color: #ef4444 #f1f1f1;
+}
+
+@media (max-width: 768px) {
+  .delete-poteau-container {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .delete-poteau-content {
+    padding: 16px;
+  }
+
+  .delete-poteau-header {
+    padding: 14px 16px;
+  }
+
+  .delete-poteau-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .delete-poteau-footer {
+    padding: 12px 16px;
+  }
+}

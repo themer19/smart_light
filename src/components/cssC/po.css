@@ -1,0 +1,120 @@
+/* po.css - Version Artistique & Moderne */
+
+/* Fond overlay avec effet "frosted glass" */
+.account-pending-dialog.p-dialog .p-dialog-mask {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+}
+
+/* Conteneur principal - Effet Glassmorphism */
+.account-pending-dialog.p-dialog .p-dialog {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  max-width: 420px;
+  overflow: hidden;
+  animation: floatIn 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Header - Dégradé artistique */
+.account-pending-dialog .p-dialog-header {
+  background: linear-gradient(135deg, #58fe4f 0%, #37fe00 100%);
+  color: white;
+  padding: 1.8rem;
+  border: none;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Contenu - Style minimaliste élégant */
+.account-pending-dialog .dialog-content {
+  padding: 2.5rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.account-pending-dialog .dialog-content img {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 1.8rem;
+  filter: drop-shadow(0 4px 12px rgba(74, 222, 128, 0.3));
+  animation: pulse 2s infinite alternate;
+}
+
+.account-pending-dialog .dialog-content p {
+  color: #4b5563;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+/* Bouton - Style néomorphisme */
+.account-pending-dialog .p-button {
+  background: linear-gradient(to right, #58fe4f, #37fe00);
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: white;
+  box-shadow: 
+    0 4px 15px rgba(79, 172, 254, 0.4),
+    0 2px 0 rgba(255, 255, 255, 0.3) inset;
+  transition: all 0.4s ease;
+  margin-top: 1rem;
+}
+
+.account-pending-dialog .p-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 20px rgba(79, 172, 254, 0.6),
+    0 2px 0 rgba(255, 255, 255, 0.3) inset;
+}
+
+/* Animations sophistiquées */
+@keyframes floatIn {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+/* Effet de lumière dynamique */
+.account-pending-dialog.p-dialog .p-dialog::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(79,172,254,0.1) 0%, transparent 70%);
+  pointer-events: none;
+  animation: rotateLight 15s linear infinite;
+}
+
+@keyframes rotateLight {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

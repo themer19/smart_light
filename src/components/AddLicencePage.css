@@ -1,0 +1,349 @@
+.add-licence-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.add-licence-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.add-licence-header {
+  padding: 18px 24px;
+  background: linear-gradient(135deg, #6a11cb 0%, #03e7e7 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.add-licence-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-licence-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.add-licence-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.add-licence-close-btn i {
+  font-size: 1.2rem;
+}
+
+.add-licence-form-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.add-licence-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.add-licence-section {
+  margin-bottom: 24px;
+}
+
+.add-licence-section-title {
+  margin: 0 0 16px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-licence-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.add-licence-form-group {
+  margin-bottom: 16px;
+}
+
+.add-licence-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #444;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-licence-form-group input,
+.add-licence-form-group .p-dropdown {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  height: 44px;
+  box-sizing: border-box;
+  transition: all 0.3s;
+}
+
+.add-licence-form-group input:focus,
+.add-licence-form-group .p-dropdown:focus {
+  border-color: #03e7e7;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(3, 231, 6, 0.2);
+}
+
+.add-licence-form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.add-licence-form-row .add-licence-form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.add-licence-add-btn {
+  background: #03e7e7;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.add-licence-add-btn:hover {
+  background: #03e7e7;
+}
+
+.add-licence-appareil-list {
+  border: 1px solid #eee;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.add-licence-appareil-list h4 {
+  margin: 0;
+  padding: 12px;
+  background: #f8f8f8;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.add-licence-appareil-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.add-licence-appareil-item:last-child {
+  border-bottom: none;
+}
+
+.appareil-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.appareil-info i {
+  color: #6c757d;
+}
+
+.appareil-name {
+  font-weight: 500;
+}
+
+.appareil-id {
+  font-size: 0.8rem;
+  color: #6c757d;
+  background: #f8f8f8;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.appareil-delete-btn {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.appareil-delete-btn:hover {
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.add-licence-footer {
+  padding: 16px 24px;
+  background: #f8f8f8;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  border-top: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.add-licence-cancel-btn,
+.add-licence-save-btn {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-licence-cancel-btn {
+  background: white;
+  border: 1px solid #ddd;
+  color: #555;
+}
+
+.add-licence-cancel-btn:hover {
+  background: #f0f0f0;
+  border-color: #ccc;
+}
+
+.add-licence-save-btn {
+  background: #03e7e7;
+  color: white;
+  border: none;
+}
+
+.add-licence-save-btn:hover {
+  background: #03e7e7;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(3, 231, 6, 0.3);
+}
+
+.add-licence-save-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Barre de défilement */
+.add-licence-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.add-licence-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.add-licence-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.add-licence-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Pour Firefox */
+.add-licence-content {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .add-licence-container {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .add-licence-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .add-licence-content {
+    padding: 16px;
+  }
+
+  .add-licence-header {
+    padding: 14px 16px;
+  }
+
+  .add-licence-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .add-licence-footer {
+    padding: 12px 16px;
+  }
+
+  .add-licence-form-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+}

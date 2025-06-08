@@ -1,4 +1,5 @@
 .licences-page {
+  --yellow-color: #FFD700; /* Jaune vif pour les lampes */
   --primary-color: #EA580C; /* Orange plus moderne */
   --primary-dark: #9A3412; /* Plus profond */
   --primary-light: #FFEDD5; /* Plus doux */
@@ -20,6 +21,7 @@
   --radius-lg: 0.5rem;
   --transition: cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
 }
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -143,7 +145,8 @@ body {
   color: var(--text-light);
   margin: 0;
 }
-/* Style principal avec variables du thème licences */
+
+/* Bouton Ajouter une licence */
 .lc-add-licence-btn {
   display: inline-flex;
   align-items: center;
@@ -167,7 +170,6 @@ body {
   letter-spacing: 0.3px;
 }
 
-/* Effet de vague orange */
 .lc-add-licence-btn::before {
   content: '';
   position: absolute;
@@ -186,15 +188,13 @@ body {
   z-index: 1;
 }
 
-/* Animation de l'icône */
-.lc-add-licence-btn i {
+.lc-add-licence-btn svg {
   transition: all 0.4s ease;
   font-size: 1.22em;
   position: relative;
   z-index: 2;
 }
 
-/* Effets au survol */
 .lc-add-licence-btn:hover {
   transform: translateY(-3px);
   box-shadow: 
@@ -206,12 +206,11 @@ body {
   transform: translateX(100%);
 }
 
-.lc-add-licence-btn:hover i {
+.lc-add-licence-btn:hover svg {
   transform: scale(1.3) rotate(90deg);
   text-shadow: 0 0 10px rgba(255, 237, 213, 0.7);
 }
 
-/* Effet au clic */
 .lc-add-licence-btn:active {
   transform: translateY(0);
   box-shadow: 
@@ -220,13 +219,11 @@ body {
   background: linear-gradient(135deg, #ea580c 0%, #9a3412 100%);
 }
 
-/* Focus pour accessibilité */
 .lc-add-licence-btn:focus-visible {
   outline: 2px solid rgba(253, 186, 116, 0.8);
   outline-offset: 2px;
 }
 
-/* Version responsive */
 @media (max-width: 768px) {
   .lc-add-licence-btn {
     padding: 0.75rem 1.7rem;
@@ -234,15 +231,19 @@ body {
     gap: 0.55rem;
   }
   
-  .lc-add-licence-btn i {
+  .lc-add-licence-btn svg {
     font-size: 1.15em;
   }
 }
+
 /* List Icon */
 .lc-list-icon {
-  font-size: 1.5rem;
-  color: var(--primary-color);
-  margin-right: 0.5rem;
+  font-size: 1.75rem;
+  color: var(--primary-dark);
+  background: rgba(249, 115, 22, 0.1);
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 4px rgba(249, 115, 22, 0.1);
 }
 
 /* Buttons */
@@ -270,12 +271,30 @@ body {
 }
 
 .lc-btn-secondary {
-  background-color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  background: var(--bg-light);
+  border: 1px solid var(--border-color);
   color: var(--text-medium);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .lc-btn-secondary:hover {
-  background-color: #e2e8f0;
+  background: var(--bg-card);
+  border-color: var(--primary-color);
+  color: var(--primary-dark);
+}
+
+.lc-btn-secondary svg {
+  transition: transform 0.2s ease;
+}
+
+.lc-btn-secondary:hover svg {
+  transform: scale(1.1);
 }
 
 .lc-btn-icon {
@@ -294,13 +313,12 @@ body {
   position: relative;
   display: flex;
   align-items: center;
-  background-color: var(--bg-light);
-  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
   padding: 0.5rem 1rem;
   border: 1px solid var(--border-color);
-  transition: var(--transition);
-  flex: 1;
-  min-width: 200px;
+  transition: all 0.3s ease;
+  min-width: 250px;
 }
 
 .lc-search-box:focus-within {
@@ -315,11 +333,12 @@ body {
 }
 
 .lc-search-input {
+  flex: 1;
   border: none;
   background: transparent;
   outline: none;
-  flex: 1;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
+  color: var(--text-dark);
 }
 
 .lc-clear-icon {
@@ -327,8 +346,12 @@ body {
   margin-left: 0.5rem;
   cursor: pointer;
   font-size: 1rem;
-  opacity: 0;
-  transition: var(--transition);
+  transition: all 0.2s ease;
+}
+
+.lc-clear-icon:hover {
+  color: var(--danger-color);
+  transform: scale(1.1);
 }
 
 .lc-search-input:not(:placeholder-shown) + .lc-clear-icon {
@@ -338,6 +361,10 @@ body {
 .lc-filter-group {
   display: flex;
   gap: 0.5rem;
+}
+
+.lc-sort-btn {
+  padding: 0.5rem;
 }
 
 /* Table */
@@ -382,8 +409,8 @@ body {
   gap: 0.5rem;
 }
 
-.lc-licence-name i,
-.lc-licence-cell i {
+.lc-licence-name svg,
+.lc-licence-cell svg {
   font-size: 1.2rem;
 }
 
@@ -391,57 +418,33 @@ body {
   font-weight: bold;
 }
 
-/* Icons Colors */
-.lc-licence-name i.ri-file-text-line {
-  color: var(--primary-color);
-}
-
-.lc-licence-cell i.ri-home-4-line {
-  color: var(--info-color);
-}
-
-.lc-licence-cell i.ri-cpu-line {
-  color: var(--warning-color);
-}
-
-.lc-licence-cell i.ri-calendar-line {
-  color: var(--success-color);
-}
-
-.lc-licence-cell i.ri-flashlight-fill {
-  color: var(--primary-color);
-}
-
-.lc-licence-cell i.ri-error-warning-fill {
-  color: var(--danger-color);
-}
-
-.lc-licence-cell i.ri-settings-3-fill {
-  color: var(--info-color);
-}
-
-.lc-licence-cell i.ri-database-2-fill {
-  color: var(--primary-color);
-  cursor: pointer;
-}
-
 /* Status Badges */
 .lc-status-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .lc-status-badge.active {
-  background-color: var(--primary-light);
-  color: var(--primary-dark);
+  background-color: #e6f7ee;
+  color: #059669;
 }
 
-.lc-status-badge.inactive {
-  background-color: #ecfdf5;
-  color: #065f46;
+.lc-status-badge.expired {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.lc-status-badge.unknown {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.lc-status-icon {
+  margin-right: 0.25rem;
 }
 
 /* Action Buttons */
@@ -463,19 +466,19 @@ body {
   background-color: var(--bg-light);
 }
 
-.lc-action-btn i {
+.lc-action-btn svg {
   font-size: 1.2rem;
 }
 
-.lc-action-btn.edit i {
+.lc-action-btn.edit svg {
   color: var(--info-color);
 }
 
-.lc-action-btn.delete i {
+.lc-action-btn.delete svg {
   color: var(--danger-color);
 }
 
-.lc-action-btn.detail i {
+.lc-action-btn.detail svg {
   color: var(--primary-color);
 }
 
@@ -515,9 +518,7 @@ body {
   opacity: 0.5;
 }
 
-/* ==================== */
-/* MOBILE CARDS */
-/* ==================== */
+/* Mobile Cards */
 .lc-licence-cards {
   display: flex;
   flex-direction: column;
@@ -535,7 +536,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .lc-licence-card-title {
@@ -545,9 +546,8 @@ body {
   font-weight: 600;
 }
 
-.lc-licence-card-title i {
+.lc-licence-card-title svg {
   font-size: 1.2rem;
-  color: var(--primary-color);
 }
 
 .lc-licence-card-body {
@@ -563,33 +563,177 @@ body {
   font-size: 0.875rem;
 }
 
+.lc-licence-card-item svg {
+  margin-right: 0.5rem;
+  min-width: 1.25rem;
+}
+
 .lc-licence-card-footer {
   display: flex;
   justify-content: flex-end;
   margin-top: 0.75rem;
 }
 
-/* ==================== */
-/* UTILITY CLASSES */
-/* ==================== */
+/* Utility Classes */
 .lc-no-licences {
   text-align: center;
   padding: 20px;
   color: var(--text-light);
 }
 
-.lc-licence-count {
-  background-color: var(--bg-light);
-  color: var(--text-medium);
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
+.lc-no-devices {
   font-size: 0.875rem;
+  color: var(--text-light);
+}
+
+.lc-licence-count {
+  background: rgba(249, 115, 22, 0.1);
+  color: var(--primary-dark);
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+/* Card Header */
+.lc-card-header {
+  padding: 1.25rem 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.lc-list-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.lc-list-title-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lc-list-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Appareils */
+.lc-appareil-item {
+  display: flex;
+  align-items: center;
+  margin: 0.25rem 0;
+}
+
+.lc-appareil-icon {
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+  color: var(--warning-color); /* Ambre par défaut pour les appareils */
+}
+
+.lc-appareil-icon.capteur {
+  color: #84fab0; /* Vert clair pour capteurs */
+}
+
+.lc-appareil-icon.autre {
+  color: #a18cd1; /* Violet pour autres */
+}
+
+.lc-appareil-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.lc-appareil-nom {
   font-weight: 500;
 }
 
-/* ==================== */
-/* RESPONSIVE DESIGN */
-/* ==================== */
+.lc-appareil-id {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* Puissance */
+.high-power {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.medium-power {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.low-power {
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Licence Key */
+.lc-licence-key {
+  display: flex;
+  align-items: center;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  background-color: #f8fafc;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.lc-key-value {
+  flex-grow: 1;
+  word-break: break-all;
+  margin-right: 0.5rem;
+  color: #4b5563;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.lc-copy-btn {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lc-copy-btn:hover {
+  background-color: #eff6ff;
+}
+
+/* Profil et accès */
+.lc-access-level {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.lc-access-level svg {
+  margin-right: 0.25rem;
+}
+
+/* Avertissement expiration */
+.lc-expiry-warning {
+  color: #ef4444;
+  margin-left: 5px;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .lc-main-content {
     margin-left: 0;
@@ -612,6 +756,52 @@ body {
   .lc-search-box {
     min-width: 100%;
   }
+
+  .lc-list-header-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .lc-search-filter-container {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .lc-filter-group {
+    align-self: flex-end;
+  }
+
+  .lc-btn-secondary span {
+    display: none;
+  }
+
+  .lc-sort-btn {
+    padding: 0.5rem;
+  }
+
+  .lc-licence-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .lc-licence-card-item .lc-key-value {
+    font-size: 0.75rem;
+    margin-right: 0.25rem;
+  }
+
+  .lc-licence-card-item .lc-copy-btn {
+    padding: 0.1rem;
+  }
+
+  .lc-licence-key {
+    font-size: 0.75rem;
+    padding: 0.3rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -628,7 +818,7 @@ body {
     padding: 0.4rem;
   }
 
-  .lc-action-btn i {
+  .lc-action-btn svg {
     font-size: 1rem;
   }
 }
@@ -644,185 +834,201 @@ body {
   clip: rect(0, 0, 0, 0);
   border: 0;
 }
-/* Conteneur principal */
-.lc-card-header {
-  padding: 1.25rem 0;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
 
-/* Wrapper flex */
-.lc-list-header-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-}
-
-/* Conteneur titre */
-.lc-list-title-container {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-/* Icône du titre */
-.lc-list-icon {
-  font-size: 1.75rem;
-  color: var(--primary-dark);
-  background: rgba(249, 115, 22, 0.1);
-  padding: 0.5rem;
-  border-radius: var(--radius-sm);
-  box-shadow: 0 2px 4px rgba(249, 115, 22, 0.1);
-}
-
-/* Titre principal */
-.lc-list-title {
+/* Icônes thématiques */
+.lc-licence-icon {
   font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  margin-right: 0.75rem;
 }
 
-/* Compteur de licences */
-.lc-licence-count {
-  background: rgba(249, 115, 22, 0.1);
-  color: var(--primary-dark);
-  padding: 0.25rem 0.75rem;
-  border-radius: 50px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border: 1px solid rgba(249, 115, 22, 0.2);
+.lc-licence-icon.pro {
+  color: #f6d365;
 }
 
-/* Conteneur recherche/filtres */
-.lc-search-filter-container {
+.lc-licence-icon.tech {
+  color: #a1c4fd;
+}
+
+.lc-licence-icon.admin {
+  color: #84fab0;
+}
+
+/* Couleurs pour les icônes dans les en-têtes du tableau */
+.table-header-with-icon svg.ri-lightbulb-flash-line {
+  color: var(--yellow-color) !important; /* Jaune pour lampe */
+}
+
+.table-header-with-icon svg.ri-user-star-line {
+  color: var(--info-color) !important; /* Bleu #0284C7 */
+}
+
+.table-header-with-icon svg.ri-flashlight-fill {
+  color: var(--success-color) !important; /* Vert #16A34A */
+}
+
+.table-header-with-icon svg.ri-home-wifi-line {
+  color: var(--warning-color) !important; /* Ambre #F59E0B */
+}
+
+.table-header-with-icon svg.ri-key-2-line {
+  color: var(--secondary-color) !important; /* Rose #DB2777 */
+}
+
+.table-header-with-icon svg.ri-map-pin-line {
+  color: var(--text-medium) !important; /* Gris #4B5563 */
+}
+
+.table-header-with-icon svg.ri-calendar-2-line {
+  color: var(--danger-color) !important; /* Rouge #DC2626 */
+}
+
+/* Couleurs pour les icônes dans les cellules du tableau */
+.lc-licence-name svg.ri-lightbulb-flash-line {
+  color: var(--yellow-color) !important; /* Jaune pour lampe */
+}
+
+.lc-user-info svg.ri-user-star-line {
+  color: var(--info-color) !important; /* Bleu #0284C7 */
+}
+
+.lc-status-badge svg.ri-flashlight-fill {
+  color: var(--success-color) !important; /* Vert #16A34A */
+}
+
+.lc-devices-info .lc-devices-list svg.ri-lightbulb-flash-line {
+  color: var(--yellow-color) !important; /* Jaune pour lampes */
+}
+
+.lc-devices-info .lc-devices-list svg.ri-sensor-line {
+  color: #84fab0 !important; /* Vert clair pour capteurs */
+}
+
+.lc-devices-info .lc-devices-list svg.ri-plug-2-line {
+  color: #a18cd1 !important; /* Violet pour autres */
+}
+
+.lc-licence-key svg.ri-key-2-line {
+  color: var(--secondary-color) !important; /* Rose #DB2777 */
+}
+
+.lc-licence-key svg.ri-file-copy-line {
+  color: var(--info-color) !important; /* Bleu #0284C7 */
+}
+
+.lc-site-info svg.ri-map-pin-line {
+  color: var(--text-medium) !important; /* Gris #4B5563 */
+}
+
+.lc-expiry-info svg.ri-calendar-2-line {
+  color: var(--danger-color) !important; /* Rouge #DC2626 */
+}
+
+.lc-expiry-info svg.ri-alarm-warning-line {
+  color: var(--danger-color) !important; /* Rouge #DC2626 */
+}
+
+/* Couleurs pour les icônes dans les cartes mobiles */
+.lc-licence-card-title svg.ri-lightbulb-flash-line {
+  color: var(--yellow-color) !important; /* Jaune pour lampe */
+}
+
+.lc-licence-card-item svg.ri-user-star-line {
+  color: var(--info-color) !important; /* Bleu #0284C7 */
+}
+
+.lc-licence-card-item svg.ri-flashlight-fill {
+  color: var(--success-color) !important; /* Vert #16A34A */
+}
+
+.lc-licence-card-item svg.ri-home-wifi-line {
+  color: var(--warning-color) !important; /* Ambre #F59E0B */
+}
+
+.lc-licence-card-item svg.ri-key-2-line {
+  color: var(--secondary-color) !important; /* Rose #DB2777 */
+}
+
+.lc-licence-card-item svg.ri-file-copy-line {
+  color: var(--info-color) !important; /* Bleu #0284C7 */
+}
+
+.lc-licence-card-item svg.ri-map-pin-line {
+  color: var(--text-medium) !important; /* Gris #4B5563 */
+}
+
+.lc-licence-card-item svg.ri-calendar-2-line {
+  color: var(--danger-color) !important; /* Rouge #DC2626 */
+}
+/* Actions */
+.lc-actions-cell {
+  width: 180px;
+}
+
+.lc-action-buttons {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-/* Boîte de recherche */
-.lc-search-box {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background: var(--bg-card);
-  border-radius: var(--radius-md);
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-  min-width: 250px;
-}
-
-.lc-search-box:focus-within {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.1);
-}
-
-/* Icône de recherche */
-.lc-search-icon {
-  color: var(--text-light);
-  margin-right: 0.5rem;
-  font-size: 1rem;
-}
-
-/* Champ de recherche */
-.lc-search-input {
-  flex: 1;
+.lc-action-btn {
+  background: none;
   border: none;
-  background: transparent;
-  outline: none;
-  font-size: 0.9375rem;
-  color: var(--text-dark);
-}
-
-/* Icône d'effacement */
-.lc-clear-icon {
-  color: var(--text-light);
-  margin-left: 0.5rem;
   cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-}
-
-.lc-clear-icon:hover {
-  color: var(--danger-color);
-  transform: scale(1.1);
-}
-
-/* Groupe filtres */
-.lc-filter-group {
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* Boutons secondaires */
-.lc-btn-secondary {
+  padding: 5px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
-  background: var(--bg-light);
-  border: 1px solid var(--border-color);
-  color: var(--text-medium);
-  cursor: pointer;
-  transition: all 0.2s ease;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
-.lc-btn-secondary:hover {
-  background: var(--bg-card);
-  border-color: var(--primary-color);
-  color: var(--primary-dark);
-}
-
-.lc-btn-secondary i {
-  transition: transform 0.2s ease;
-}
-
-.lc-btn-secondary:hover i {
+.lc-action-btn:hover {
   transform: scale(1.1);
 }
 
-/* Bouton de tri spécifique */
-.lc-sort-btn {
-  padding: 0.5rem;
+.lc-action-btn.renew {
+  color: #4CAF50;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .lc-list-header-wrapper {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-  
-  .lc-search-filter-container {
-    flex-direction: column;
-    gap: 0.75rem;
-    width: 100%;
-  }
-  
-  .lc-search-box {
-    width: 100%;
-  }
-  
-  .lc-filter-group {
-    align-self: flex-end;
-  }
-  
-  /* Masquer le texte des boutons sur mobile */
-  .lc-btn-secondary span {
-    display: none;
-  }
-  
-  .lc-sort-btn {
-    padding: 0.5rem;
-  }
+.lc-action-btn.suspend {
+  color: #FFC107;
+}
+
+.lc-action-btn.reactivate {
+  color: #2196F3;
+}
+
+.lc-action-btn.regenerate {
+  color: #9C27B0;
+}
+
+.lc-action-btn.edit {
+  color: #00BCD4;
+}
+
+.lc-action-btn.delete {
+  color: #F44336;
+}
+
+/* Version mobile */
+.lc-licence-card-actions {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.lc-mobile-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  color: #555;
+  transition: all 0.2s;
+}
+
+.lc-mobile-action-btn:hover {
+  color: #2196F3;
+  transform: scale(1.1);
 }

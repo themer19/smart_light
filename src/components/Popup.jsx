@@ -1,5 +1,5 @@
 import React from "react";
-import "./cssC/popup.css"; // Ajoutez des styles pour le pop-up
+import "./cssC/po.css"; // Ajoutez des styles pour le pop-up
 import echeIcon from "../assets/success.png";
 
 const Popup = ({ message, onClose, onConfirm, isOpen }) => {

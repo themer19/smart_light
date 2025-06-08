@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import Sidebar from '../components/Sidebar';
 import AddSiteModal from '../components/AddSiteModal';
 import EditSiteModal from '../components/EditSiteModal';
+import DeleteSitePage from '../components/DeleteSitePage';
 import KnobPopup from '../components/KwhPop';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -19,20 +20,25 @@ function Sites() {
   const [sites, setSites] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const sitesPerPage = 10;
+  const [isLoading, setIsLoading] = useState(true);
+  const [isTableLoading, setIsTableLoading] = useState(true);
+  const [isGeocoding, setIsGeocoding] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedSite, setSelectedSite] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteSiteId, setDeleteSiteId] = useState(null);
+  const sitesPerPage = 10;
 
   const handleOpenDetails = (site) => {
     setSelectedSite(site);
     setDetailsModalOpen(true);
   };
-  
+
   const handleCloseDetails = () => {
     setDetailsModalOpen(false);
     setSelectedSite(null);
   };
-  // Gestion de la responsivité
+
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
@@ -47,16 +53,18 @@ function Sites() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Fetch sites with optimized geocoding
   const fetchSites = async () => {
+    setIsLoading(true);
+    setIsTableLoading(true);
     try {
       const response = await fetch('http://localhost:5000/api/site/allsite');
       if (!response.ok) {
-        toast.error('Erreur lors du chargement des sites');
-        return;
+        throw new Error('Erreur réseau');
       }
 
       const data = await response.json();
+      setIsGeocoding(true);
+
       const sitesWithCity = await Promise.all(
         data.map(async (site) => {
           if (site.localisation?.latitude && site.localisation?.longitude) {
@@ -79,12 +87,12 @@ function Sites() {
                 },
               };
             } catch (geoError) {
-              console.error('Erreur géocodage :', geoError);
+              console.error('Erreur géocodage:', geoError);
               return {
                 ...site,
                 localisation: {
                   ...site.localisation,
-                  ville: 'Erreur géocodage',
+                  ville: 'Ville inconnue',
                 },
               };
             }
@@ -95,8 +103,12 @@ function Sites() {
 
       setSites(sitesWithCity);
     } catch (error) {
-      console.error('Erreur fetch :', error);
-      toast.error('Erreur serveur');
+      console.error('Erreur fetch:', error);
+      toast.error('Erreur lors du chargement des sites');
+    } finally {
+      setIsLoading(false);
+      setIsTableLoading(false);
+      setIsGeocoding(false);
     }
   };
 
@@ -104,7 +116,6 @@ function Sites() {
     fetchSites();
   }, []);
 
-  // Handle search
   const filteredSites = useMemo(() => {
     return sites.filter(
       (site) =>
@@ -113,7 +124,6 @@ function Sites() {
     );
   }, [sites, searchTerm]);
 
-  // Handle pagination
   const totalPages = Math.ceil(filteredSites.length / sitesPerPage);
   const paginatedSites = useMemo(() => {
     const startIndex = (currentPage - 1) * sitesPerPage;
@@ -139,7 +149,7 @@ function Sites() {
 
   const handleSaveSite = async (siteData) => {
     if (!siteData.location || !siteData.location.lat || !siteData.location.lng) {
-      toast.error('La localisation est obligatoire (latitude et longitude)');
+      toast.error('La localisation est obligatoire');
       return;
     }
 
@@ -161,22 +171,22 @@ function Sites() {
       });
 
       if (response.ok) {
-        toast.success('Site créé avec succès !');
+        toast.success('Site créé avec succès!');
         setIsModalOpen(false);
         await fetchSites();
       } else {
         const errorData = await response.json();
-        toast.error(`❌ Erreur: ${errorData.message || 'Échec de l\'enregistrement du site'}`);
+        toast.error(errorData.message || 'Échec de la création');
       }
     } catch (error) {
-      toast.error('🚨 Une erreur est survenue lors de la création du site');
+      toast.error('Erreur réseau');
       console.error('Erreur:', error);
     }
   };
 
   const handleEditSite = async (siteData) => {
     if (!siteData.location || !siteData.location.lat || !siteData.location.lng) {
-      toast.error('La localisation est obligatoire (latitude et longitude)');
+      toast.error('La localisation est obligatoire');
       return;
     }
 
@@ -198,38 +208,42 @@ function Sites() {
       });
 
       if (response.ok) {
-        toast.success('Site modifié avec succès !');
+        toast.success('Site modifié avec succès!');
         setIsEditModalOpen(false);
         setEditSite(null);
         await fetchSites();
       } else {
         const errorData = await response.json();
-        toast.error(`❌ Erreur: ${errorData.message || 'Échec de la modification du site'}`);
+        toast.error(errorData.message || 'Échec de la modification');
       }
     } catch (error) {
-      toast.error('🚨 Une erreur est survenue lors de la modification du site');
+      toast.error('Erreur réseau');
       console.error('Erreur:', error);
     }
   };
 
-  const handleDeleteSite = async (siteId) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/site/sitedel/${siteId}`, {
-        method: 'DELETE',
-      });
+ const handleDeleteSite = async (siteId, reason) => {
+  try {
+    const response = await fetch(`http://localhost:5000/api/site/sitedel/${siteId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reason }),
+    });
 
-      if (response.ok) {
-        setSites(sites.filter((site) => site._id !== siteId));
-        toast.success('Site supprimé avec succès !');
-      } else {
-        const errorData = await response.json();
-        toast.error(`❌ Erreur: ${errorData.message || 'Échec de la suppression du site'}`);
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-      toast.error('🚨 Une erreur est survenue lors de la suppression du site');
+    if (response.ok) {
+      setSites(sites.filter((site) => site._id !== siteId));
+      setShowDeleteModal(false);
+      setDeleteSiteId(null);
+      window.location.reload(); // Reload the page after successful deletion
+    } else {
+      const errorData = await response.json();
     }
-  };
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+};
 
   const handleSidebarToggle = (isOpen) => {
     setSidebarOpen(isOpen);
@@ -308,11 +322,21 @@ function Sites() {
                   />
                 )}
                 {detailsModalOpen && (
-  <SiteDetailsModal 
-    site={selectedSite} 
-    onClose={handleCloseDetails} 
-  />
-)}
+                  <SiteDetailsModal 
+                    site={selectedSite} 
+                    onClose={handleCloseDetails} 
+                  />
+                )}
+                {showDeleteModal && deleteSiteId && (
+                  <DeleteSitePage
+                    siteId={deleteSiteId}
+                    onClose={() => {
+                      setShowDeleteModal(false);
+                      setDeleteSiteId(null);
+                    }}
+                    onSave={(reason) => handleDeleteSite(deleteSiteId, reason)}
+                  />
+                )}
               </div>
             </div>
 
@@ -362,7 +386,12 @@ function Sites() {
 
             {isMobile ? (
               <div className="sm-line-cards">
-                {paginatedSites.length > 0 ? (
+                {isTableLoading ? (
+                  <div className="sm-loading-container">
+                    <div className="sm-loading-spinner"></div>
+                    <p>Chargement des sites...</p>
+                  </div>
+                ) : paginatedSites.length > 0 ? (
                   paginatedSites.map((site, i) => (
                     <div className="sm-line-card" key={site._id}>
                       <div className="sm-line-card-header">
@@ -423,13 +452,17 @@ function Sites() {
                           </button>
                           <button
                             className="sm-action-btn delete"
-                            onClick={() => handleDeleteSite(site._id)}
+                            onClick={() => {
+                              setDeleteSiteId(site._id);
+                              setShowDeleteModal(true);
+                            }}
                             aria-label={`Supprimer le site ${site.nom}`}
                           >
                             <i className="ri-delete-bin-line" />
                           </button>
                           <button
                             className="sm-action-btn detail"
+                            onClick={() => handleOpenDetails(site)}
                             title="Voir détails"
                             aria-label={`Voir les détails du site ${site.nom}`}
                           >
@@ -448,16 +481,53 @@ function Sites() {
                 <table className="sm-lines-table">
                   <thead>
                     <tr>
-                      <th>Nom du Site</th>
-                      <th>Localisation</th>
-                      <th>Status</th>
-                      <th>Data</th>
-                      <th>Dernière Mise à Jour</th>
-                      <th>Actions</th>
+                      <th>
+                        <div className="table-header-with-icon">
+                          <i className="ri-building-line" />
+                          <span>Nom du Site</span>
+                        </div>
+                      </th>
+                      <th>
+                        <div className="table-header-with-icon">
+                          <i className="ri-map-pin-line" />
+                          <span>Localisation</span>
+                        </div>
+                      </th>
+                      <th>
+                        <div className="table-header-with-icon">
+                          <i className="ri-checkbox-circle-line" />
+                          <span>Status</span>
+                        </div>
+                      </th>
+                      <th>
+                        <div className="table-header-with-icon">
+                          <i className="ri-database-2-line" />
+                          <span>Data</span>
+                        </div>
+                      </th>
+                      <th>
+                        <div className="table-header-with-icon">
+                          <i className="ri-history-line" />
+                          <span>Dernière Mise à Jour</span>
+                        </div>
+                      </th>
+                      <th>
+                        <div className="table-header-with-icon">
+                          <i className="ri-settings-2-line" />
+                          <span>Actions</span>
+                        </div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedSites.length > 0 ? (
+                    {isTableLoading ? (
+                      <tr>
+                        <td colSpan="6" className="sm-table-loading">
+                          <div className="sm-table-spinner"></div>
+                          <span>Chargement des données...</span>
+                        </td>
+                      </tr>
+                    ) : paginatedSites.length > 0 ? (
                       paginatedSites.map((site, i) => (
                         <tr key={site._id}>
                           <td>
@@ -523,19 +593,22 @@ function Sites() {
                               </button>
                               <button
                                 className="sm-action-btn delete"
-                                onClick={() => handleDeleteSite(site._id)}
+                                onClick={() => {
+                                  setDeleteSiteId(site._id);
+                                  setShowDeleteModal(true);
+                                }}
                                 aria-label={`Supprimer le site ${site.nom}`}
                               >
                                 <i className="ri-delete-bin-line" />
                               </button>
                               <button
-  className="sm-action-btn detail"
-  onClick={() => handleOpenDetails(site)}
-  title="Voir détails"
-  aria-label={`Voir les détails du site ${site.nom}`}
->
-  <i className="ri-eye-line" />
-</button>
+                                className="sm-action-btn detail"
+                                onClick={() => handleOpenDetails(site)}
+                                title="Voir détails"
+                                aria-label={`Voir les détails du site ${site.nom}`}
+                              >
+                                <i className="ri-eye-line" />
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -581,7 +654,17 @@ function Sites() {
           </div>
         </main>
         {kwhPopup && <KnobPopup onClose={handleCloseKwhPopup} />}
-        <ToastContainer position="top-right" autoClose={3000} />
+        <ToastContainer 
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </div>
     </div>
   );

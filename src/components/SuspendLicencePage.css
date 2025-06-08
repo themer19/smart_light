@@ -1,0 +1,244 @@
+.suspend-licence-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.suspend-licence-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.suspend-licence-header {
+  padding: 18px 24px;
+  background: linear-gradient(135deg, #6a11cb 0%, #e77d03 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.suspend-licence-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.suspend-licence-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.suspend-licence-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.suspend-licence-close-btn i {
+  font-size: 1.2rem;
+}
+
+.suspend-licence-form-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.suspend-licence-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.suspend-licence-section {
+  margin-bottom: 24px;
+}
+
+.suspend-licence-section-title {
+  margin: 0 0 16px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.suspend-licence-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.suspend-licence-form-group {
+  margin-bottom: 16px;
+}
+
+.suspend-licence-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #444;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.suspend-licence-form-group input,
+.suspend-licence-form-group .p-dropdown {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  height: 44px;
+  box-sizing: border-box;
+  transition: all 0.3s;
+}
+
+.suspend-licence-form-group input:focus,
+.suspend-licence-form-group .p-dropdown:focus {
+  border-color: #f59e0b;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.suspend-licence-footer {
+  padding: 16px 24px;
+  background: #f8f8f8;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  border-top: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.suspend-licence-cancel-btn,
+.suspend-licence-save-btn {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.suspend-licence-cancel-btn {
+  background: white;
+  border: 1px solid #ddd;
+  color: #555;
+}
+
+.suspend-licence-cancel-btn:hover {
+  background: #f0f0f0;
+  border-color: #ccc;
+}
+
+.suspend-licence-save-btn {
+  background: #f59e0b;
+  color: white;
+  border: none;
+}
+
+.suspend-licence-save-btn:hover {
+  background: #e68a00;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.suspend-licence-save-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.suspend-licence-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.suspend-licence-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.suspend-licence-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.suspend-licence-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.suspend-licence-content {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+@media (max-width: 768px) {
+  .suspend-licence-container {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .suspend-licence-content {
+    padding: 16px;
+  }
+
+  .suspend-licence-header {
+    padding: 14px 16px;
+  }
+
+  .suspend-licence-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .suspend-licence-footer {
+    padding: 12px 16px;
+  }
+}

@@ -9,58 +9,161 @@
     flex-direction: column;
     min-height: 100vh;
     margin: 0;
-  }
+    padding: 20px;
+    box-sizing: border-box;
+}
 
 .validation-content {
     background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 30px; 
+    border-radius: 30px;
     position: relative;
     overflow: hidden;
-    width: 90%; 
-    max-width: 600px; 
-    min-height: 500px; 
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); 
-    margin: 20px 0; 
-    padding: 20px; 
+    width: 100%;
+    max-width: 600px;
+    min-height: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.validation-email-icon {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: auto;
+    padding-top: 20px;
+}
+
+.validation-email-icon img {
+    width: 50px;
+    height: 50px;
+}
+
+.validation-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.validation-divider {
+    width: 80%;
+    margin: 20px auto;
+    border: 1px solid #ccc;
+}
+
+.validation-subtitle {
+    text-align: center;
+    margin-bottom: 5px;
+    font-size: 1rem;
+}
+
+.validation-email {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.validation-instructions {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    line-height: 1.4;
 }
 
 .validation-verification-code {
     display: flex;
     justify-content: center;
     margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 
 .validation-code-input {
-    border: 1px solid #ccc; 
+    border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 24px; 
+    font-size: 24px;
     text-align: center;
-    width: 40px; 
-    height: 50px; 
-    margin: 0 5px; 
+    width: 40px;
+    height: 50px;
+    margin: 0 2px;
     caret-color: #1aff00;
 }
 
 .validation-code-input:focus {
-    border-color: #1aff00; 
-    outline: none; 
+    border-color: #1aff00;
+    outline: none;
+}
+
+.validation-error {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.validation-attempts {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.validation-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
 }
 
 .validation-btn {
     background-color: #03e706;
     color: #fff;
-    padding: 10px 10px;
-    border: 1px solid transparent;
+    padding: 12px 20px;
+    border: none;
     border-radius: 8px;
     font-weight: 600;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     margin-top: 10px;
+    width: 100%;
+    max-width: 300px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .validation-btn:hover {
     background-color: #fffb00;
 }
+
+.validation-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.validation-links {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+.validation-links span {
+    cursor: pointer;
+    color: #03e706;
+    text-decoration: underline;
+}
+
+.validation-back-link {
+    text-align: center;
+    margin-top: 30px;
+    cursor: pointer;
+    color: #03e706;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -71,13 +174,212 @@
     display: flex;
     justify-content: center;
     align-items: center;
-  }
-  
-  .popup-content {
+    z-index: 1000;
+}
+
+.popup-content {
     background: white;
     padding: 20px;
     border-radius: 10px;
     width: 300px;
     text-align: center;
+    box-sizing: border-box;
+}
+
+.popup-content h3 {
+    margin-bottom: 15px;
+}
+
+.email-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.popup-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.cancel-btn {
+    padding: 8px 15px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.save-btn {
+    padding: 8px 15px;
+    background-color: #03e706;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.account-pending-dialog {
+    width: 90% !important;
+    max-width: 400px;
+}
+
+.dialog-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.dialog-content img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+}
+
+.dialog-content p {
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+.Toastify__toast--success {
+  background-color: #03e706 !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+  font-family: Arial, sans-serif !important;
+}
+
+.Toastify__toast--error {
+  background-color: #ff4d4f !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+  font-family: Arial, sans-serif !important;
+}
+
+.Toastify__toast--warning {
+  background-color: #ffa500 !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+  font-family: Arial, sans-serif !important;
+}
+
+.Toastify__toast--info {
+  background-color: #1e90ff !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+  font-family: Arial, sans-serif !important;
+}
+
+.Toastify__toast-icon svg {
+  fill: #fffb00 !important;
+}
+
+.Toastify__toast-container {
+  z-index: 1000 !important;
+  font-size: 16px !important;
+}
+
+.Toastify__close-button > svg {
+  fill: #fff !important;
+}
+
+.Toastify__progress-bar--success {
+  background-color: #fffb00 !important;
+}
+
+.Toastify__progress-bar--error,
+.Toastify__progress-bar--warning,
+.Toastify__progress-bar--info {
+  background-color: #fff !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .validation-content {
+    width: 95%;
+    padding: 15px;
   }
-  
+
+  .validation-verification-code {
+    gap: 5px;
+  }
+
+  .validation-code-input {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .ToastContainer__toast-container {
+    width: 90% !important;
+    margin: 0 auto !important;
+  }
+}
+@media (max-width: 768px) {
+    .validation-content {
+        padding: 15px;
+        min-height: auto;
+    }
+    
+    .validation-code-input {
+        width: 35px;
+        height: 45px;
+        font-size: 20px;
+    }
+    
+    .validation-btn {
+        padding: 12px 10px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .validation-content {
+        border-radius: 20px;
+        padding: 15px 10px;
+    }
+    
+    .validation-code-input {
+        width: 30px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    .popup-content {
+        width: 90%;
+        max-width: 280px;
+    }
+    
+    .validation-btn {
+        padding: 14px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .validation-title {
+        font-size: 1.1rem;
+    }
+    
+    .validation-instructions {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 320px) {
+    .validation-code-input {
+        width: 25px;
+        height: 35px;
+        font-size: 16px;
+    }
+    
+    .validation-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+}

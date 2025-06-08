@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import './AddSiteModal.css'
+import './EditSiteModal.css';
 
 const customIcon = new L.Icon({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -23,7 +23,6 @@ const LocationPicker = ({ onLocationSelect, initialPosition }) => {
     },
   });
 
-  // Centre la carte sur la position initiale
   useEffect(() => {
     if (initialPosition) {
       map.flyTo(initialPosition, 15);
@@ -127,22 +126,22 @@ const EditSiteModal = ({ onClose, onSave, initialData }) => {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-container">
-        <div className="modal-header">
+    <div className="edit-site-modal-overlay">
+      <div className="edit-site-modal-container">
+        <div className="edit-site-modal-header">
           <h2>✏️ Modifier le Site</h2>
-          <button className="close-btn" onClick={onClose}>&times;</button>
+          <button className="edit-site-close-btn" onClick={onClose}>×</button>
         </div>
 
-        <div className="modal-tabs">
+        <div className="edit-site-modal-tabs">
           <button 
-            className={`tab ${activeTab === 'details' ? 'active' : ''}`}
+            className={`edit-site-tab ${activeTab === 'details' ? 'active' : ''}`}
             onClick={() => setActiveTab('details')}
           >
             📋 Informations de base
           </button>
           <button 
-            className={`tab ${activeTab === 'location' ? 'active' : ''}`}
+            className={`edit-site-tab ${activeTab === 'location' ? 'active' : ''}`}
             onClick={() => setActiveTab('location')}
           >
             🗺️ Position sur la carte
@@ -150,10 +149,10 @@ const EditSiteModal = ({ onClose, onSave, initialData }) => {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="modal-content">
+          <div className="edit-site-modal-content">
             {activeTab === 'details' && (
               <>
-                <div className="form-group">
+                <div className="edit-site-form-group">
                   <label>Nom du site *</label>
                   <input
                     type="text"
@@ -163,8 +162,8 @@ const EditSiteModal = ({ onClose, onSave, initialData }) => {
                   />
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group">
+                <div className="edit-site-form-row">
+                  <div className="edit-site-form-group">
                     <label>Statut</label>
                     <select
                       value={formData.status}
@@ -176,7 +175,7 @@ const EditSiteModal = ({ onClose, onSave, initialData }) => {
                     </select>
                   </div>
 
-                  <div className="form-group">
+                  <div className="edit-site-form-group">
                     <label>Date d'installation</label>
                     <input
                       type="date"
@@ -186,7 +185,7 @@ const EditSiteModal = ({ onClose, onSave, initialData }) => {
                   </div>
                 </div>
 
-                <div className="form-group">
+                <div className="edit-site-form-group">
                   <label>Description</label>
                   <textarea
                     value={formData.description}
@@ -198,8 +197,8 @@ const EditSiteModal = ({ onClose, onSave, initialData }) => {
             )}
 
             {activeTab === 'location' && (
-              <div className="map-section">
-                <div className="map-container">
+              <div className="edit-site-map-section">
+                <div className="edit-site-map-container">
                   <MapContainer
                     center={formData.location || [33.8869, 9.5375]}
                     zoom={formData.location ? 15 : 7}
@@ -209,7 +208,7 @@ const EditSiteModal = ({ onClose, onSave, initialData }) => {
                   >
                     <TileLayer
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     />
                     <LocationPicker 
                       onLocationSelect={handleLocationSelect} 
@@ -217,7 +216,7 @@ const EditSiteModal = ({ onClose, onSave, initialData }) => {
                     />
                   </MapContainer>
                 </div>
-                <div className="coordinates-info">
+                <div className="edit-site-coordinates-info">
                   {formData.location ? (
                     <p>
                       Position actuelle: 
@@ -234,10 +233,10 @@ const EditSiteModal = ({ onClose, onSave, initialData }) => {
             )}
           </div>
 
-          <div className="modal-footer">
+          <div className="edit-site-modal-footer">
             <button 
               type="button" 
-              className="cancel-btn"
+              className="edit-site-cancel-btn"
               onClick={onClose}
               disabled={isLoading}
             >
@@ -245,7 +244,7 @@ const EditSiteModal = ({ onClose, onSave, initialData }) => {
             </button>
             <button 
               type="submit" 
-              className="submit-btn"
+              className="edit-site-submit-btn"
               disabled={isLoading}
             >
               {isLoading ? 'Enregistrement...' : 'Mettre à jour'}

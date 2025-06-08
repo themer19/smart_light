@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import "./cssP/validationuser.css";
 import emailIcon from "../assets/email.png";
 import Popup from "../components/Popup";
@@ -6,106 +6,129 @@ import { Dialog } from "primereact/dialog";
 import PopupOff from "../components/PopupOff";
 import successIcon from "../assets/success.png";
 import { Button } from "primereact/button";
-
-import { Toast } from "primereact/toast";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
+
 function Validationuser() {
   const navigate = useNavigate();
-  const [verificationCode, setVerificationCode] = useState(Array(5).fill("")); // Tableau pour le code de vérification
+  const [verificationCode, setVerificationCode] = useState(Array(5).fill(""));
   const location = useLocation();
   const [email, setEmail] = useState(location.state?.Data.email || "");
   const [timeLeft, setTimeLeft] = useState(120);
   const [attempts, setAttempts] = useState(0);
-  const [successMessage, setSuccessMessage] = useState(""); // État pour le message de succès
-  const [showPopup, setShowPopup] = useState(false); // État pour afficher le pop-up
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [showPopupOff, setShowPopupOff] = useState(false); // État pour afficher le pop-up
-  const toast = useRef(null);
+  const [showPopupOff, setShowPopupOff] = useState(false);
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const [newEmail, setNewEmail] = useState(email);
+  const [showAccountPendingDialog, setShowAccountPendingDialog] = useState(false);
+
   const handleOpenEmailPopup = () => setShowEmailPopup(true);
   const handleCloseEmailPopup = () => setShowEmailPopup(false);
   const handleEmailChange = (e) => setNewEmail(e.target.value);
-  const [showAccountPendingDialog, setShowAccountPendingDialog] =
-    useState(false);
+
+  // Reusable toast function
+  const showToast = (type, message, options = {}) => {
+    const toastOptions = {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+      ...options,
+    };
+
+    switch (type) {
+      case "success":
+        toast.success(message, toastOptions);
+        break;
+      case "error":
+        toast.error(message, toastOptions);
+        break;
+      case "warning":
+        toast.warn(message, toastOptions);
+        break;
+      case "info":
+        toast.info(message, toastOptions);
+        break;
+      default:
+        toast(message, toastOptions);
+    }
+  };
 
   const handleSaveEmail = async () => {
     try {
-      console.log("Nouvel email:", newEmail);
-
-      // Vérifier si l'email est disponible
       const checkResponse = await axios.post(
         "http://localhost:5000/api/users/VerifierEmail",
-        {
-          email: newEmail,
-        }
+        { email: newEmail }
       );
 
       if (checkResponse.data.exists) {
-        toast.current.show({
-          severity: "error",
-          summary: "Erreur",
-          detail: "Cet email est déjà utilisé.",
-          life: 3000,
-        });
+        showToast("error", "Cet email est déjà utilisé.");
         setErrorMessage("Cet email est déjà utilisé.");
-        return; // Ne continuez pas si l'email existe déjà
+        return;
       }
 
-      // Envoyer l'email si disponible
       await axios.post("http://localhost:5000/api/users/code", {
         email: newEmail,
       });
 
-      // Mettre à jour l'état avec le nouvel email
       setEmail(newEmail);
       setTimeLeft(120);
       setAttempts(0);
       setErrorMessage("");
       setShowEmailPopup(false);
-      toast.current.show({
-        severity: "success",
-        summary: "Succès",
-        detail: "L'email a été mis à jour avec succès!",
-        life: 3000,
-      });
+      showToast("success", "L'email a été mis à jour avec succès!");
     } catch (error) {
       console.error("Erreur:", error);
+      showToast("error", "Une erreur est survenue.");
       setErrorMessage("Une erreur est survenue.");
     }
   };
 
   useEffect(() => {
-    // Démarrer le chronomètre
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
           clearInterval(timer);
-          return 0; // Arrête le chronomètre à 0
+          return 0;
         }
-        return prevTime - 1; // Décompte d'une seconde
+        return prevTime - 1;
       });
-    }, 1000); // 1000 ms = 1 seconde
+    }, 1000);
 
-    return () => clearInterval(timer); // Nettoyage de l'intervalle à la désinscription
+    return () => clearInterval(timer);
   }, []);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${minutes < 10 ? "0" : ""}${minutes}:${
-      secs < 10 ? "0" : ""
-    }${secs}`;
+    return `${minutes < 10 ? "0" : ""}${minutes}:${secs < 10 ? "0" : ""}${secs}`;
   };
+
   const handleChange = (index, value) => {
-    const newCode = [...verificationCode];
-    newCode[index] = value;
-    setVerificationCode(newCode);
+    if (/^[0-9]?$/.test(value)) {
+      const newCode = [...verificationCode];
+      newCode[index] = value;
+      setVerificationCode(newCode);
+      if (value && index < 4) {
+        document.querySelector(`input:nth-child(${index + 2})`).focus();
+      }
+    }
   };
 
   const validateCode = async () => {
-    const codeEntered = verificationCode.join(""); // Convertir le tableau en chaîne
+    const codeEntered = verificationCode.join("");
+    if (codeEntered.length !== 5) {
+      showToast("error", "Veuillez entrer un code complet de 5 chiffres.");
+      return;
+    }
+
     try {
       const response = await axios.post(
         "http://localhost:5000/api/users/verifecode",
@@ -115,13 +138,11 @@ function Validationuser() {
         }
       );
 
-      console.log(response.data);
-
       if (response.data.valid) {
         const userData = {
           nom: location.state?.Data.nom,
           prenom: location.state?.Data.prenom,
-          email:email,
+          email: email,
           motDePasse: location.state?.Data.motDePasse,
           dateDeNaissance: location.state?.Data.dateDeNaissance,
           cin: location.state?.Data.cin,
@@ -129,39 +150,35 @@ function Validationuser() {
           numéroDeTéléphone: location.state?.Data.numéroDeTéléphone,
         };
 
-        const addUserResponse = await axios.post(
+        await axios.post(
           "http://localhost:5000/api/users/ajoute",
           userData,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
+          { headers: { "Content-Type": "application/json" } }
         );
 
-        console.log(addUserResponse.data);
         setSuccessMessage("Utilisateur créé avec succès !");
-        setShowAccountPendingDialog(true); // Affichez la réponse du serveur
+        setShowAccountPendingDialog(true);
       } else {
-        setMessage("Code de vérification invalide. Veuillez réessayer.");
+        setAttempts(attempts + 1);
+        showToast("error", "Code de vérification invalide. Veuillez réessayer.");
+        setErrorMessage("Code de vérification invalide. Veuillez réessayer.");
       }
     } catch (error) {
       console.error("Erreur lors de la validation du code:", error);
-      if (error.response) {
-        console.error("Erreur de réponse:", error.response.data); // Affichez la réponse d'erreur du serveur
-      }
       setAttempts(attempts + 1);
       if (attempts + 1 >= 3) {
+        showToast("error", "Vous avez atteint la limite d'essais !");
         setErrorMessage("Vous avez atteint la limite d'essais !");
         setShowPopupOff(true);
       } else {
+        showToast("error", `Code incorrect, ESSAIS ${attempts + 1}/3`);
         setErrorMessage(`Code incorrect, ESSAIS ${attempts + 1}/3`);
       }
     }
   };
 
   const handleClosePopup = () => {
-    setShowPopup(false); // Ferme le pop-up
+    setShowPopup(false);
   };
 
   const resendCode = async () => {
@@ -169,172 +186,76 @@ function Validationuser() {
       await axios.post("http://localhost:5000/api/users/renvoyercode", {
         email: email,
       });
-      setTimeLeft(120); // Réinitialiser le timer à 120 secondes
-      setAttempts(0); // Réinitialiser les tentatives
+      setTimeLeft(120);
+      setAttempts(0);
       setErrorMessage("");
-      toast.current.show({
-        severity: "success",
-        summary: "Succès",
-        detail: "Le code a été renvoyé avec succès!",
-        life: 3000,
-      }); // Effacer les messages d'erreur
+      showToast("success", "Le code a été renvoyé avec succès!");
     } catch (error) {
       console.error("Erreur lors de l'envoi du code :", error);
+      showToast("error", "Erreur lors du renvoi du code.");
     }
   };
 
   return (
     <div className="validation-page">
       <div className="validation-content">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-start",
-            height: "auto",
-            paddingTop: "20px",
-          }}
-        >
-          <img
-            src={emailIcon}
-            alt="Icône d'e-mail"
-            style={{ width: "50px", height: "50px" }}
-          />
+        <div className="validation-email-icon">
+          <img src={emailIcon} alt="Icône d'e-mail" />
         </div>
 
-        <p style={{ textAlign: "center", marginBottom: "20px" }}>
-          Vérifiez votre e-mail
-        </p>
-        <hr
-          style={{
-            width: "80%",
-            margin: "20px auto",
-            border: "1px solid #ccc",
-          }}
-        />
-        <h6 style={{ textAlign: "center" }}>Le code a été envoyé à:</h6>
-        <p style={{ textAlign: "center", marginBottom: "20px" }}>{email}</p>
-        <p style={{ textAlign: "center", marginBottom: "20px" }}>
+        <p className="validation-title">Vérifiez votre e-mail</p>
+        <hr className="validation-divider" />
+        <h6 className="validation-subtitle">Le code a été envoyé à:</h6>
+        <p className="validation-email">{email}</p>
+        <p className="validation-instructions">
           Vérifiez votre boîte de réception et saisissez le code de vérification
           ci-dessous pour confirmer votre adresse e-mail. Notez bien que le code
           expirera dans : {formatTime(timeLeft)}
         </p>
 
-        <div
-          className="validation-verification-code"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "20px",
-          }}
-        >
+        <div className="validation-verification-code">
           {verificationCode.map((code, index) => (
             <input
               key={index}
               type="text"
-              maxLength={1} // Limite à un seul caractère
+              maxLength={1}
               className="validation-code-input"
               value={code}
               onChange={(e) => handleChange(index, e.target.value)}
-              style={{
-                width: "40px",
-                height: "50px", // Hauteur des champs d'entrée
-                margin: "0 5px",
-                textAlign: "center",
-                fontSize: "24px", // Taille de la police
-              }} // Style pour les champs
             />
           ))}
         </div>
-        {errorMessage && (
-          <p style={{ color: "red", textAlign: "center", marginTop: "10px" }}>
-            {errorMessage}
-          </p>
-        )}
-        <p style={{ textAlign: "center", marginTop: "10px" }}>
-          essais restantes : {3 - attempts}
-        </p>
+        
+        {errorMessage && <p className="validation-error">{errorMessage}</p>}
+        <p className="validation-attempts">Essais restants : {3 - attempts}</p>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "20px",
-          }}
-        >
+        <div className="validation-button-container">
           <button
             className="validation-btn"
             onClick={validateCode}
             disabled={attempts >= 3 || timeLeft === 0}
-            style={{
-              width: "100%",
-              fontSize: "1rem",
-              backgroundColor: "#03e706",
-              color: "#fff",
-              border: "none",
-              backgroundColor:
-                attempts >= 3 || timeLeft === 0 ? "#ccc" : "#03e706",
-              padding: "10px",
-              borderRadius: "8px",
-              fontWeight: 600,
-              letterSpacing: "0.5px",
-              textTransform: "uppercase",
-              transition: "background-color 0.3s",
-              cursor:
-                attempts >= 3 || timeLeft === 0 ? "not-allowed" : "pointer",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "#fffb00")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "#03e706")
-            }
           >
             Confirmer
           </button>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-            marginTop: "20px",
-          }}
-        >
-          <span
-            onClick={resendCode}
-            style={{ cursor: "pointer", color: "#03e706" }}
-          >
-            Renvoyer le code
-          </span>
-          <span
-            onClick={handleOpenEmailPopup}
-            style={{ cursor: "pointer", color: "#03e706" }}
-          >
-            Changer l'e-mail
-          </span>
+        <div className="validation-links">
+          <span onClick={resendCode}>Renvoyer le code</span>
+          <span onClick={handleOpenEmailPopup}>Changer l'e-mail</span>
         </div>
       </div>
-      <p
-        style={{
-          textAlign: "center",
-          marginTop: "50px",
-          marginLeft: "-50px",
-          cursor: "pointer",
-          color: "#03e706",
-        }}
-        onClick={() => navigate("/")}
-      >
+      
+      <p className="validation-back-link" onClick={() => navigate("/")}>
         Retour à la page de connexion
       </p>
+
       {showPopup && (
         <Popup
           message="Votre compte a été créé avec succès !"
           onClose={() => setShowPopup(false)}
           onConfirm={() => {
             setShowPopup(false);
-            navigate("/"); // Redirige vers la page de connexion après confirmation
+            navigate("/");
           }}
         />
       )}
@@ -346,6 +267,7 @@ function Validationuser() {
           onClick={() => setShowPopupOff(false)}
         />
       )}
+
       {showEmailPopup && (
         <div className="popup-overlay">
           <div className="popup-content">
@@ -354,61 +276,28 @@ function Validationuser() {
               type="email"
               value={newEmail}
               onChange={handleEmailChange}
-              style={{
-                width: "100%",
-                padding: "8px",
-                marginBottom: "10px",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-              }}
+              className="email-input"
             />
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <button
-                onClick={handleCloseEmailPopup}
-                style={{
-                  padding: "8px",
-                  backgroundColor: "red",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "5px",
-                }}
-              >
+            <div className="popup-buttons">
+              <button onClick={handleCloseEmailPopup} className="cancel-btn">
                 Annuler
               </button>
-              <button
-                onClick={handleSaveEmail}
-                style={{
-                  padding: "8px",
-                  backgroundColor: "#03e706",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "5px",
-                }}
-              >
+              <button onClick={handleSaveEmail} className="save-btn">
                 Enregistrer
               </button>
             </div>
           </div>
         </div>
       )}
+
       <Dialog
         header="Compte en attente"
         visible={showAccountPendingDialog}
         closable={false}
-        style={{ width: "400px", textAlign: "center" }}
+        className="account-pending-dialog"
       >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <img
-            src={successIcon}
-            alt="Icône d'attente"
-            style={{ width: "80px", height: "80px", marginBottom: "10px" }}
-          />
+        <div className="dialog-content">
+          <img src={successIcon} alt="Icône de succès" />
           <p>
             Votre compte a été créé avec succès, mais il doit être validé par
             l'administration.
@@ -422,7 +311,19 @@ function Validationuser() {
           />
         </div>
       </Dialog>
-      <Toast ref={toast} />
+      
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 }
