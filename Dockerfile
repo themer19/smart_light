@@ -1,12 +1,15 @@
-# Dockerfile
-FROM node:22 as builder
+# Exemple de Dockerfile pour projet Vite + React/TS
+FROM node:20-alpine
+
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm install
+
 COPY . .
+
 RUN npm run build
 
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 5173
+
+CMD ["npm", "run", "dev"]
