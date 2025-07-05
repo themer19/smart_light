@@ -47,7 +47,7 @@ const EditPoteauModal = ({ onClose, onSave, initialData }) => {
     ligne: '',
     statut: 'Actif',
     luminosite: 0,
-    localisation: { lat: null, lng: null },
+    localisation: { lat: 36.8065, lng: 10.1815 }, // Default to Tunisia
   });
   const [siteOptions, setSiteOptions] = useState([]);
   const [ligneOptions, setLigneOptions] = useState([]);
@@ -56,17 +56,17 @@ const EditPoteauModal = ({ onClose, onSave, initialData }) => {
   const [selectingLocation, setSelectingLocation] = useState(false);
 
   useEffect(() => {
-    console.log('initialData reçu:', JSON.stringify(initialData, null, 2)); // Debug
+    console.log('initialData received:', JSON.stringify(initialData, null, 2));
     if (initialData) {
       setPoteauData({
         _id: initialData._id || '',
         nom: initialData.nom || '',
         code: initialData.code || '',
-        site: initialData.site?._id || initialData.site || '', // Gérer site comme ID
-        ligne: initialData.ligne?._id || initialData.ligne || '', // Gérer ligne comme ID
+        site: initialData.site?._id || initialData.site || '',
+        ligne: initialData.ligne?._id || initialData.ligne || '',
         statut: initialData.statut || 'Actif',
         luminosite: initialData.luminosite || initialData.niveauLumiere || 0,
-        localisation: initialData.localisation || { lat: null, lng: null },
+        localisation: initialData.localisation || { lat: 36.8065, lng: 10.1815 },
       });
     }
   }, [initialData]);
@@ -81,9 +81,10 @@ const EditPoteauModal = ({ onClose, onSave, initialData }) => {
           icon: 'ri-building-4-line',
         }));
         setSiteOptions(sites);
+        console.log('Sites fetched:', sites);
       } catch (error) {
-        toast.error('Erreur : Impossible de charger les sites.');
-        console.error('Erreur lors du chargement des sites:', error.response?.data || error.message);
+        toast.error('Erreur lors du chargement des sites.');
+        console.error('Error fetching sites:', error.response?.data || error.message);
       }
     };
 
@@ -98,9 +99,10 @@ const EditPoteauModal = ({ onClose, onSave, initialData }) => {
           icon: 'ri-git-branch-line',
         }));
         setLigneOptions(lignes);
+        console.log('Lignes fetched:', lignes);
       } catch (error) {
-        toast.error('Erreur : Impossible de charger les lignes.');
-        console.error('Erreur lors du chargement des lignes:', error.response?.data || error.message);
+        toast.error('Erreur lors du chargement des lignes.');
+        console.error('Error fetching lignes:', error.response?.data || error.message);
       }
     };
 
@@ -135,9 +137,9 @@ const EditPoteauModal = ({ onClose, onSave, initialData }) => {
             setExistingPoteaux(
               response.data.data.filter((poteau) => poteau.id !== initialData?._id)
             );
+            console.log('Existing poteaux fetched:', response.data.data);
           } catch (error) {
-            toast.error('Erreur : Impossible de charger les poteaux.');
-            console.error('Erreur lors du chargement des poteaux existants:', error.response?.data || error.message);
+            console.error('Error fetching existing poteaux:', error.response?.data || error.message);
           }
         };
         fetchPoteaux();
@@ -168,10 +170,15 @@ const EditPoteauModal = ({ onClose, onSave, initialData }) => {
   };
 
   const handleSliderChange = (e) => {
+    setPoteauData((prev) => ({ ...prev, luminosite: e.value }));
+  };
+
+  const clearLocation = () => {
     setPoteauData((prev) => ({
       ...prev,
-      luminosite: e.value,
+      localisation: { lat: 36.8065, lng: 10.1815 },
     }));
+    toast.info('Emplacement réinitialisé.');
   };
 
   const MapClickHandler = () => {
@@ -184,7 +191,7 @@ const EditPoteauModal = ({ onClose, onSave, initialData }) => {
             localisation: { lat, lng },
           }));
           setSelectingLocation(false);
-          toast.success('Emplacement sélectionné avec succès.');
+          toast.success('Emplacement sélectionné.');
         }
       },
     });
@@ -207,7 +214,6 @@ const EditPoteauModal = ({ onClose, onSave, initialData }) => {
 
     try {
       const payload = {
-        id: poteauData._id,
         nom: poteauData.nom,
         code: poteauData.code,
         site: poteauData.site,
@@ -220,26 +226,25 @@ const EditPoteauModal = ({ onClose, onSave, initialData }) => {
         },
       };
 
-      console.log('Envoi des données au serveur:', JSON.stringify(payload, null, 2));
+      console.log('Sending payload:', JSON.stringify(payload, null, 2));
       const response = await axios.put(`http://localhost:5000/api/poteau/${poteauData._id}`, payload);
-      console.log('Réponse du serveur:', JSON.stringify(response.data, null, 2));
+      console.log('Server response:', JSON.stringify(response.data, null, 2));
+      toast.success('Poteau modifié avec succès.');
       onSave(response.data);
       setTimeout(() => onClose(), 500);
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Erreur lors de la modification du poteau.';
       toast.error(errorMessage);
-      console.error('Erreur lors de la modification du poteau:', error.response?.data || error.message);
+      console.error('Error updating poteau:', error.response?.data || error.message);
     }
   };
 
-  const dropdownItemTemplate = (option) => {
-    return (
-      <div className="poteau-dropdown-item">
-        <i className={`${option.icon} poteau-dropdown-icon`} />
-        <span>{option.label}</span>
-      </div>
-    );
-  };
+  const dropdownItemTemplate = (option) => (
+    <div className="poteau-dropdown-item">
+      <i className={`${option.icon} poteau-dropdown-icon`} />
+      <span>{option.label}</span>
+    </div>
+  );
 
   const dropdownValueTemplate = (option, props) => {
     if (option) {
@@ -363,7 +368,7 @@ const EditPoteauModal = ({ onClose, onSave, initialData }) => {
               <div className="poteau-slider-container">
                 <Slider
                   value={poteauData.luminosite}
-                  onChange={(e) => handleSliderChange(e)}
+                  onChange={handleSliderChange}
                   min={0}
                   max={100}
                   step={1}
@@ -381,7 +386,7 @@ const EditPoteauModal = ({ onClose, onSave, initialData }) => {
               </label>
               <div className="poteau-map-container">
                 <MapContainer
-                  center={[poteauData.localisation.lat || 48.8566, poteauData.localisation.lng || 2.3522]}
+                  center={[poteauData.localisation.lat, poteauData.localisation.lng]}
                   zoom={13}
                   style={{ height: '300px', width: '100%' }}
                   whenCreated={(map) => (mapRef.current = map)}
@@ -415,18 +420,26 @@ const EditPoteauModal = ({ onClose, onSave, initialData }) => {
                   ))}
                 </MapContainer>
               </div>
-              <Button
-                label="Sélectionner l'emplacement"
-                icon="pi pi-map-marker"
-                className="p-button-text p-button-sm poteau-map-btn blue-btn"
-                onClick={() => setSelectingLocation(true)}
-                disabled={selectingLocation}
-              />
+              <div className="poteau-map-buttons">
+                <Button
+                  label="Sélectionner l'emplacement"
+                  icon="pi pi-map-marker"
+                  className="p-button-text p-button-sm poteau-map-btn blue-btn"
+                  onClick={() => setSelectingLocation(true)}
+                  disabled={selectingLocation}
+                />
+                <Button
+                  label="Réinitialiser l'emplacement"
+                  icon="pi pi-refresh"
+                  className="p-button-text p-button-sm poteau-map-btn"
+                  onClick={clearLocation}
+                />
+              </div>
               {poteauData.localisation.lat && poteauData.localisation.lng && (
                 <span className="p-input-icon-left">
                   <i className="ri-map-pin-line" />
                   <InputText
-                    value={`Lat: ${poteauData.localisation.lat}, Lng: ${poteauData.localisation.lng}`}
+                    value={`Lat: ${poteauData.localisation.lat.toFixed(6)}, Lng: ${poteauData.localisation.lng.toFixed(6)}`}
                     readOnly
                     className="poteau-form-input poteau-coords-input"
                   />

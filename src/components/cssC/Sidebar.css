@@ -421,3 +421,62 @@
     padding-left: 70px;
   }
 }
+/* ==================== */
+/* SIDEBAR SECTION */
+/* ==================== */
+.sidebar-nav__info {
+  padding: 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-nav__name-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem; /* Reduced gap for tight alignment */
+}
+
+.sidebar-nav__info h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+  line-height: 1.2; /* Ensures vertical alignment */
+}
+
+.sidebar-nav__info span {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  display: block;
+  margin-top: 0.5rem; /* Space between name and email */
+}
+
+.sidebar-nav__edit-btn {
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-nav__edit-icon {
+  font-size: 0.875rem; /* Smaller icon for balance */
+  color: var(--text-medium);
+  transition: var(--transition);
+}
+
+.sidebar-nav__edit-btn:hover .sidebar-nav__edit-icon,
+.sidebar-nav__edit-btn:focus .sidebar-nav__edit-icon {
+  color: var(--primary-color);
+  transform: scale(1.15); /* Slightly larger hover effect */
+}
+
+.sidebar-nav__edit-btn:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}

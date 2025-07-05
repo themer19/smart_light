@@ -5,6 +5,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AddLicencePage from '../components/AddLicencePage';
 import ProfileDetails from '../components/ProfileDetails';
+import DeleteAdminPage from '../components/DeleteAdminPage';
+import axios from 'axios'; // Ajouté pour la suppression via API
 import './cssP/Utilisateurs.css';
 
 function Utilisateurs() {
@@ -12,6 +14,8 @@ function Utilisateurs() {
   const [selectedUtilisateur, setSelectedUtilisateur] = useState(null);
   const [isProfileDetailsOpen, setIsProfileDetailsOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [isDeleteAdminModalOpen, setIsDeleteAdminModalOpen] = useState(false);
+  const [utilisateurToDelete, setUtilisateurToDelete] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [utilisateurs, setUtilisateurs] = useState([]);
@@ -58,6 +62,29 @@ function Utilisateurs() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const handleOpenDeleteModal = (utilisateur) => {
+    setUtilisateurToDelete({
+      id: utilisateur._id,
+      nom: capitalize(`${utilisateur.prenom} ${utilisateur.nom}`),
+    });
+    setIsDeleteAdminModalOpen(true);
+  };
+
+  const handleDeleteUtilisateur = async (utilisateurId) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/users/${utilisateurId}`);
+      setUtilisateurs((prevUtilisateurs) =>
+        prevUtilisateurs.filter((utilisateur) => utilisateur._id !== utilisateurId)
+      );
+      toast.success('Utilisateur supprimé avec succès !');
+      setIsDeleteAdminModalOpen(false);
+      setUtilisateurToDelete(null);
+    } catch (error) {
+      toast.error('🚨 Une erreur est survenue lors de la suppression de l\'utilisateur');
+      console.error('Erreur:', error);
+    }
+  };
+
   const filteredUtilisateurs = useMemo(() => {
     return utilisateurs.filter(
       (utilisateur) =>
@@ -76,19 +103,6 @@ function Utilisateurs() {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
-    }
-  };
-
-  const handleDeleteUtilisateur = async (utilisateurId) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/users/${utilisateurId}`);
-      setUtilisateurs((prevUtilisateurs) =>
-        prevUtilisateurs.filter((utilisateur) => utilisateur._id !== utilisateurId)
-      );
-      toast.success('Utilisateur supprimé avec succès !');
-    } catch (error) {
-      toast.error('🚨 Une erreur est survenue lors de la suppression de l\'utilisateur');
-      console.error('Erreur:', error);
     }
   };
 
@@ -137,15 +151,15 @@ function Utilisateurs() {
       nom: utilisateur.nom,
       prenom: utilisateur.prenom,
       email: utilisateur.email,
-      telephone: utilisateur.numéroDeTéléphone, // Non disponible dans les données
+      telephone: utilisateur.numéroDeTéléphone,
       role: utilisateur.role,
       statut: utilisateur.statut,
       photo: null,
-      dateNaissance : utilisateur.dateDeNaissance,
-      adresse : utilisateur.adresse,
-      statut : utilisateur.estActif,
-      dateCreation : utilisateur.crééLe,
-      licence : utilisateur.license,
+      dateNaissance: utilisateur.dateDeNaissance,
+      adresse: utilisateur.adresse,
+      statut: utilisateur.estActif,
+      dateCreation: utilisateur.crééLe,
+      licence: utilisateur.licence,
     });
     setIsProfileDetailsOpen(true);
   };
@@ -307,7 +321,7 @@ function Utilisateurs() {
                         <div className="us-action-buttons">
                           <button
                             className="us-action-btn delete"
-                            onClick={() => handleDeleteUtilisateur(utilisateur._id)}
+                            onClick={() => handleOpenDeleteModal(utilisateur)}
                             aria-label={`Supprimer l'utilisateur ${utilisateur.nom}`}
                           >
                             <i className="ri-delete-bin-line" />
@@ -389,40 +403,40 @@ function Utilisateurs() {
                             </div>
                           </td>
                           <td>
-                         <div className="us-utilisateur-cell">
-  <i
-    className={`ri-${
-      utilisateur.estActif ? 'flashlight-fill' : 'error-warning-fill'
-    }`}
-  />
-  <span
-    className={clsx('us-status-badge', {
-      active: utilisateur.estActif,
-      inactive: !utilisateur.estActif,
-    })}
-  >
-    {utilisateur.estActif ? 'Actif' : 'Inactif'}
-  </span>
-  <button
-    className="us-toggle-status-btn"
-    onClick={() => handleToggleStatus(utilisateur)}
-    aria-label={`${
-      utilisateur.estActif ? 'Désactiver' : 'Activer'
-    } l'utilisateur ${utilisateur.nom}`}
-  >
-    <i
-      className={`ri-${
-        utilisateur.estActif ? 'pause-circle-line' : 'play-circle-line'
-      }`}
-    />
-  </button>
-</div>
+                            <div className="us-utilisateur-cell">
+                              <i
+                                className={`ri-${
+                                  utilisateur.estActif ? 'flashlight-fill' : 'error-warning-fill'
+                                }`}
+                              />
+                              <span
+                                className={clsx('us-status-badge', {
+                                  active: utilisateur.estActif,
+                                  inactive: !utilisateur.estActif,
+                                })}
+                              >
+                                {utilisateur.estActif ? 'Actif' : 'Inactif'}
+                              </span>
+                              <button
+                                className="us-toggle-status-btn"
+                                onClick={() => handleToggleStatus(utilisateur)}
+                                aria-label={`${
+                                  utilisateur.estActif ? 'Désactiver' : 'Activer'
+                                } l'utilisateur ${utilisateur.nom}`}
+                              >
+                                <i
+                                  className={`ri-${
+                                    utilisateur.estActif ? 'pause-circle-line' : 'play-circle-line'
+                                  }`}
+                                />
+                              </button>
+                            </div>
                           </td>
                           <td>
                             <div className="us-action-buttons">
                               <button
                                 className="us-action-btn delete"
-                                onClick={() => handleDeleteUtilisateur(utilisateur._id)}
+                                onClick={() => handleOpenDeleteModal(utilisateur)}
                                 aria-label={`Supprimer l'utilisateur ${utilisateur.nom}`}
                               >
                                 <i className="ri-delete-bin-line" />
@@ -451,23 +465,22 @@ function Utilisateurs() {
               </div>
             )}
 
-{isAddLicenceModalOpen && (
-  <AddLicencePage
-    onClose={() => {
-      setIsAddLicenceModalOpen(false);
-      setSelectedUtilisateur(null);
-    }}
-    onSave={handleAssignLicence}
-    utilisateurNom={
-      selectedUtilisateur
-        ? capitalize(`${selectedUtilisateur.prenom} ${selectedUtilisateur.nom}`)
-        : null
-    }
-    utilisateurId={selectedUtilisateur?._id}
-    utilisateurEmail={selectedUtilisateur?.email}
-  />
-)}
-
+            {isAddLicenceModalOpen && (
+              <AddLicencePage
+                onClose={() => {
+                  setIsAddLicenceModalOpen(false);
+                  setSelectedUtilisateur(null);
+                }}
+                onSave={handleAssignLicence}
+                utilisateurNom={
+                  selectedUtilisateur
+                    ? capitalize(`${selectedUtilisateur.prenom} ${selectedUtilisateur.nom}`)
+                    : null
+                }
+                utilisateurId={selectedUtilisateur?._id}
+                utilisateurEmail={selectedUtilisateur?.email}
+              />
+            )}
 
             {isProfileDetailsOpen && (
               <ProfileDetails
@@ -480,6 +493,18 @@ function Utilisateurs() {
                   toast.info('Fonctionnalité de modification à implémenter');
                 }}
                 profileData={selectedProfile}
+              />
+            )}
+
+            {isDeleteAdminModalOpen && utilisateurToDelete && (
+              <DeleteAdminPage
+                utilisateurId={utilisateurToDelete.id}
+                utilisateurNom={utilisateurToDelete.nom}
+                onClose={() => {
+                  setIsDeleteAdminModalOpen(false);
+                  setUtilisateurToDelete(null);
+                }}
+                onSave={handleDeleteUtilisateur}
               />
             )}
 

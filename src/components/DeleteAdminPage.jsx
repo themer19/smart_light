@@ -4,10 +4,10 @@ import { Toast } from 'primereact/toast';
 import axios from 'axios';
 import 'primereact/resources/themes/saga-green/theme.css';
 import 'primereact/resources/primereact.min.css';
-import './DeleteLinePage.css';
+import './DeleteAdminPage.css'; // Create this CSS file
 import { RiDeleteBinLine } from 'react-icons/ri';
 
-const DeleteLinePage = ({ lineId, onClose, onSave }) => {
+const DeleteAdminPage = ({ utilisateurId, utilisateurNom, onClose, onSave }) => {
   const toast = useRef(null);
   const [reason, setReason] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -15,28 +15,24 @@ const DeleteLinePage = ({ lineId, onClose, onSave }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log('Submitting deletion for line:', lineId, 'Reason:', reason);
     try {
-      const response = await axios.delete(`http://localhost:5000/api/ligne/${lineId}`, {
-        data: { reason }
+      await axios.delete(`http://localhost:5000/api/users/${utilisateurId}`, {
+        data: { reason },
       });
-      console.log('Delete response:', response.data);
       toast.current.show({
         severity: 'success',
         summary: 'Succès',
-        detail: 'Ligne supprimée avec succès',
+        detail: `Utilisateur ${utilisateurNom} supprimé avec succès`,
         life: 3000,
       });
-      // Add a slight delay to ensure backend processes deletion
-      await new Promise(resolve => setTimeout(resolve, 500));
-      if (onSave) onSave(reason);
+      if (onSave) onSave(utilisateurId); // Pass utilisateurId to update parent state
       if (onClose) onClose();
     } catch (error) {
       console.error('Erreur lors de la suppression :', error.response?.data || error.message);
       toast.current.show({
         severity: 'error',
         summary: 'Erreur',
-        detail: error.response?.data?.message || 'Erreur lors de la suppression de la ligne',
+        detail: error.response?.data?.message || 'Erreur lors de la suppression de l’utilisateur',
         life: 3000,
       });
     } finally {
@@ -45,16 +41,16 @@ const DeleteLinePage = ({ lineId, onClose, onSave }) => {
   };
 
   return (
-    <div className="delete-line-modal-overlay">
+    <div className="delete-admin-modal-overlay">
       <Toast ref={toast} />
-      <div className="delete-line-container">
-        <div className="delete-line-header">
+      <div className="delete-admin-container">
+        <div className="delete-admin-header">
           <h2>
             <RiDeleteBinLine />
-            Supprimer la Ligne
+            Supprimer l’Utilisateur
           </h2>
           <button
-            className="delete-line-close-btn"
+            className="delete-admin-close-btn"
             onClick={onClose}
             aria-label="Fermer la fenêtre"
           >
@@ -62,16 +58,16 @@ const DeleteLinePage = ({ lineId, onClose, onSave }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="delete-line-form-container">
-          <div className="delete-line-content">
-            <div className="delete-line-section">
-              <h3 className="delete-line-section-title">
+        <form onSubmit={handleSubmit} className="delete-admin-form-container">
+          <div className="delete-admin-content">
+            <div className="delete-admin-section">
+              <h3 className="delete-admin-section-title">
                 <RiDeleteBinLine /> Confirmation de Suppression
               </h3>
-              <p className="delete-line-warning">
-                Êtes-vous sûr de vouloir supprimer cette ligne ? Cette action est irréversible.
+              <p className="delete-admin-warning">
+                Êtes-vous sûr de vouloir supprimer l’utilisateur <strong>{utilisateurNom}</strong> ? Cette action est irréversible.
               </p>
-              <div className="delete-line-form-group">
+              <div className="delete-admin-form-group">
                 <label htmlFor="reason">
                   <i className="ri-file-text-line" /> Raison de la suppression (facultatif)
                 </label>
@@ -82,16 +78,16 @@ const DeleteLinePage = ({ lineId, onClose, onSave }) => {
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="Indiquez la raison de la suppression..."
                   rows={4}
-                  className="delete-line-textarea"
+                  className="delete-admin-textarea"
                 />
               </div>
             </div>
           </div>
 
-          <div className="delete-line-footer">
+          <div className="delete-admin-footer">
             <button
               type="button"
-              className="delete-line-cancel-btn"
+              className="delete-admin-cancel-btn"
               onClick={onClose}
               disabled={isLoading}
             >
@@ -99,7 +95,7 @@ const DeleteLinePage = ({ lineId, onClose, onSave }) => {
             </button>
             <button
               type="submit"
-              className="delete-line-confirm-btn"
+              className="delete-admin-confirm-btn"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -119,4 +115,4 @@ const DeleteLinePage = ({ lineId, onClose, onSave }) => {
   );
 };
 
-export default DeleteLinePage;
+export default DeleteAdminPage;

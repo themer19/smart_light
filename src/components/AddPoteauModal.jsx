@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
@@ -20,19 +20,39 @@ const poteauIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-// Icône pour les points de ligne
-const lineIcon = new L.Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconSize: [30, 48],
-  iconAnchor: [15, 48],
-  popupAnchor: [0, -48],
+// Icône pour le point de départ de la ligne (bleu)
+const lineStartIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [0, -41],
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
   shadowSize: [41, 41],
 });
 
-// Icône pour les poteaux existants (bleu par défaut pour distinction)
+// Icône pour le point d'arrivée de la ligne (rouge)
+const lineEndIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [0, -41],
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  shadowSize: [41, 41],
+});
+
+// Icône pour les sites (vert)
+const siteIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [0, -41],
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  shadowSize: [41, 41],
+});
+
+// Icône pour les poteaux existants (gris)
 const existingPoteauIcon = new L.Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [0, -41],
@@ -41,7 +61,7 @@ const existingPoteauIcon = new L.Icon({
 });
 
 const AddPoteauModal = ({ onClose, onSave, initialData }) => {
-  const mapRef = useState(null)[1]; // mapRef n'est pas utilisé correctement, mais conservé pour compatibilité
+  const mapRef = useRef(null);
   const [poteauData, setPoteauData] = useState({
     nom: '',
     code: '',
@@ -54,6 +74,7 @@ const AddPoteauModal = ({ onClose, onSave, initialData }) => {
   const [siteOptions, setSiteOptions] = useState([]);
   const [ligneOptions, setLigneOptions] = useState([]);
   const [ligneMarkers, setLigneMarkers] = useState([]);
+  const [siteMarker, setSiteMarker] = useState(null);
   const [existingPoteaux, setExistingPoteaux] = useState([]);
   const [selectingLocation, setSelectingLocation] = useState(false);
 
@@ -65,6 +86,7 @@ const AddPoteauModal = ({ onClose, onSave, initialData }) => {
           label: site.nom,
           value: site._id,
           icon: 'ri-building-4-line',
+          localisation: site.localisation || { lat: 36.8065, lng: 10.1815 }, // Fallback to Tunis
         }));
         setSiteOptions(sites);
       } catch (error) {
@@ -79,8 +101,8 @@ const AddPoteauModal = ({ onClose, onSave, initialData }) => {
         const lignes = response.data.map((ligne) => ({
           label: ligne.nom_L,
           value: ligne._id,
-          startPoint: ligne.startPoint,
-          endPoint: ligne.endPoint,
+          startPoint: ligne.startPoint || { lat: 36.8065, lng: 10.1815 },
+          endPoint: ligne.endPoint || { lat: 36.8065, lng: 10.1815 },
           icon: 'ri-git-branch-line',
         }));
         setLigneOptions(lignes);
@@ -121,6 +143,26 @@ const AddPoteauModal = ({ onClose, onSave, initialData }) => {
   }, [initialData]);
 
   useEffect(() => {
+    // Update site marker when site is selected
+    if (poteauData.site) {
+      const selectedSite = siteOptions.find((option) => option.value === poteauData.site);
+      if (selectedSite && selectedSite.localisation.lat && selectedSite.localisation.lng) {
+        setSiteMarker({
+          position: [selectedSite.localisation.lat, selectedSite.localisation.lng],
+          label: selectedSite.label,
+        });
+        // Center map on site
+        if (mapRef.current) {
+          mapRef.current.setView([selectedSite.localisation.lat, selectedSite.localisation.lng], 13);
+        }
+      } else {
+        setSiteMarker(null);
+      }
+    } else {
+      setSiteMarker(null);
+    }
+
+    // Update line markers and existing poteaux when line is selected
     if (poteauData.ligne) {
       const selectedLigne = ligneOptions.find((option) => option.value === poteauData.ligne);
       if (selectedLigne && selectedLigne.startPoint && selectedLigne.endPoint) {
@@ -129,25 +171,41 @@ const AddPoteauModal = ({ onClose, onSave, initialData }) => {
           markers.push({
             position: [selectedLigne.startPoint.lat, selectedLigne.startPoint.lng],
             label: selectedLigne.startPoint.name || 'Point de départ',
+            icon: lineStartIcon,
           });
         }
         if (selectedLigne.endPoint.lat && selectedLigne.endPoint.lng) {
           markers.push({
             position: [selectedLigne.endPoint.lat, selectedLigne.endPoint.lng],
             label: selectedLigne.endPoint.name || 'Point d’arrivée',
+            icon: lineEndIcon,
           });
         }
         setLigneMarkers(markers);
+
+        // Center map on line bounds if both points exist
+        if (markers.length === 2 && mapRef.current) {
+          const bounds = L.latLngBounds(
+            [markers[0].position[0], markers[0].position[1]],
+            [markers[1].position[0], markers[1].position[1]]
+          );
+          mapRef.current.fitBounds(bounds);
+        }
 
         const fetchPoteaux = async () => {
           try {
             const response = await axios.get('http://localhost:5000/api/poteaux/map', {
               params: { ligneId: poteauData.ligne },
             });
-            setExistingPoteaux(response.data.data);
+            setExistingPoteaux(
+              response.data.data.map((poteau) => ({
+                ...poteau,
+                lat: poteau.localisation.lat,
+                lng: poteau.localisation.lng,
+              }))
+            );
           } catch (error) {
-            toast.error('Erreur : Impossible de charger les poteaux.');
-            console.error('Erreur lors du chargement des poteaux existants:', error.response?.data || error.message);
+            
           }
         };
         fetchPoteaux();
@@ -159,7 +217,7 @@ const AddPoteauModal = ({ onClose, onSave, initialData }) => {
       setLigneMarkers([]);
       setExistingPoteaux([]);
     }
-  }, [poteauData.ligne, ligneOptions]);
+  }, [poteauData.site, poteauData.ligne, siteOptions, ligneOptions]);
 
   const statutOptions = [
     { label: 'Actif', value: 'Actif', icon: 'ri-checkbox-circle-line' },
@@ -228,7 +286,7 @@ const AddPoteauModal = ({ onClose, onSave, initialData }) => {
       const response = await axios.post('http://localhost:5000/api/poteau', payload);
       console.log('Réponse du serveur:', JSON.stringify(response.data, null, 2));
       onSave(response.data);
-      setTimeout(() => onClose(), 500); // Délai pour permettre au toast de s'afficher
+      setTimeout(() => onClose(), 500);
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Erreur lors de la sauvegarde du poteau.';
       toast.error(errorMessage);
@@ -385,10 +443,12 @@ const AddPoteauModal = ({ onClose, onSave, initialData }) => {
               </label>
               <div className="poteau-map-container">
                 <MapContainer
-                  center={[48.8566, 2.3522]}
+                  center={[36.8065, 10.1815]} // Tunis coordinates
                   zoom={13}
                   style={{ height: '300px', width: '100%' }}
-                  whenCreated={(map) => (mapRef.current = map)}
+                  whenCreated={(map) => {
+                    mapRef.current = map;
+                  }}
                 >
                   <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -403,14 +463,19 @@ const AddPoteauModal = ({ onClose, onSave, initialData }) => {
                       <Popup>Nouveau Poteau</Popup>
                     </Marker>
                   )}
+                  {siteMarker && (
+                    <Marker position={siteMarker.position} icon={siteIcon}>
+                      <Popup>{siteMarker.label}</Popup>
+                    </Marker>
+                  )}
                   {ligneMarkers.map((marker, index) => (
-                    <Marker key={index} position={marker.position} icon={lineIcon}>
+                    <Marker key={index} position={marker.position} icon={marker.icon}>
                       <Popup>{marker.label}</Popup>
                     </Marker>
                   ))}
                   {existingPoteaux.map((poteau) => (
                     <Marker
-                      key={poteau.id}
+                      key={poteau._id}
                       position={[poteau.lat, poteau.lng]}
                       icon={existingPoteauIcon}
                     >
@@ -422,7 +487,7 @@ const AddPoteauModal = ({ onClose, onSave, initialData }) => {
               <Button
                 label="Sélectionner l'emplacement"
                 icon="pi pi-map-marker"
-                className="p-button-text p-button-sm poteau-map-btn"
+                className="p-button-text p-button-sm poteau-map-btn blue-btn"
                 onClick={() => setSelectingLocation(true)}
                 disabled={selectingLocation}
               />

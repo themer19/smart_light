@@ -20,40 +20,35 @@ const lineIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-const LineEdit = ({ visible, onClose, line, onSave }) => {
+const LineEdit = ({ visible, onHide, line, onSave }) => {
   const mapRef = useRef(null);
   const [lineData, setLineData] = useState({
-    nom_Ligne: '',
+    nom_L: '',
     code: '',
     type: 'Basse Tension',
-    longueurKm: '',
-    typeConducteur: '',
-    siteId: '',
-    statut: 'Active',
+    lengthKm: '',
+    type_conducteur: '',
+    site: '',
+    status: 'Active',
     description: '',
-    posteSource: { nom: '', lat: null, lng: null },
-    postePointe: { nom: '', lat: null, lng: null },
+    startPoint: { name: '', lat: null, lng: null },
+    endPoint: { name: '', lat: null, lng: null },
     nombrePoteaux: null,
   });
   const [selectingPoint, setSelectingPoint] = useState(null);
-  const [sourceMarker, setSourceMarker] = useState(null);
-  const [pointeMarker, setPointeMarker] = useState(null);
+  const [startMarker, setStartMarker] = useState(null);
+  const [endMarker, setEndMarker] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [siteOptions, setSiteOptions] = useState([]);
   const [loadingSites, setLoadingSites] = useState(false);
 
-  const showToast = (severity, summary, detail) => {
-    const toastOptions = { autoClose: 3000 };
-    if (severity === 'success') {
-      toast.success(detail, toastOptions);
-    } else if (severity === 'error') {
-      toast.error(`🚨 ${detail}`, toastOptions);
-    } else if (severity === 'warn') {
-      toast.warn(detail, toastOptions);
-    } else {
-      console.warn('Invalid toast severity:', severity);
-      toast.info(detail, toastOptions);
-    }
+  const toastConfig = {
+    position: 'top-right',
+    autoClose: 3000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
   };
 
   const mapVoltageToOption = (voltage) => {
@@ -70,7 +65,7 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
     const normalizedVoltage = voltage?.toLowerCase().trim();
     const mappedValue = voltageMap[normalizedVoltage] || 'Basse Tension';
     if (!mappedValue && voltage) {
-      showToast('warn', 'Tension non reconnue', `La tension "${voltage}" n'est pas valide. Utilisation de Basse Tension par défaut.`);
+      toast.warn(`La tension "${voltage}" n'est pas valide. Utilisation de Basse Tension par défaut.`, toastConfig);
     }
     return mappedValue;
   };
@@ -78,7 +73,7 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
   const validateConductorType = (conductorType) => {
     const validTypes = ['Cuivre', 'Aluminium', 'ACSR', 'AAAC'];
     const normalizedType = conductorType?.trim();
-    return normalizedType || '';
+    return validTypes.includes(normalizedType) ? normalizedType : '';
   };
 
   useEffect(() => {
@@ -91,14 +86,14 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
           value: site._id,
         }));
         setSiteOptions(sites);
-        if (visible && !lineData.siteId && sites.length > 0) {
-          setLineData((prev) => ({ ...prev, siteId: sites[0].value }));
+        if (visible && !lineData.site && sites.length > 0) {
+          setLineData((prev) => ({ ...prev, site: sites[0].value }));
         }
         if (sites.length === 0) {
-          showToast('warn', 'Aucun site', 'Aucun site disponible. Veuillez ajouter un site.');
+          toast.warn('Aucun site disponible. Veuillez ajouter un site.', toastConfig);
         }
       } catch (error) {
-        showToast('error', 'Erreur de chargement', 'Impossible de charger les sites.');
+        toast.error('Impossible de charger les sites.', toastConfig);
         console.error('Erreur fetchSites:', error);
       } finally {
         setLoadingSites(false);
@@ -108,20 +103,20 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
     if (visible && line) {
       fetchSites();
       setLineData({
-        nom_Ligne: line.nom_L || '',
+        nom_L: line.nom_L || '',
         code: line.code || '',
         type: mapVoltageToOption(line.type) || 'Basse Tension',
-        longueurKm: line.lengthKm || '',
-        typeConducteur: validateConductorType(line.type_conducteur),
-        siteId: line.site?._id || (typeof line.site === 'string' ? line.site : ''),
-        statut: line.status || 'Active',
+        lengthKm: line.lengthKm || '',
+        type_conducteur: validateConductorType(line.type_conducteur),
+        site: line.site?._id || (typeof line.site === 'string' ? line.site : ''),
+        status: line.status || 'Active',
         description: line.description || '',
-        posteSource: line.startPoint || { nom: '', lat: null, lng: null },
-        postePointe: line.endPoint || { nom: '', lat: null, lng: null },
+        startPoint: line.startPoint || { name: '', lat: null, lng: null },
+        endPoint: line.endPoint || { name: '', lat: null, lng: null },
         nombrePoteaux: line.nombrePoteaux || 0,
       });
-      setSourceMarker(line.startPoint?.lat ? [line.startPoint.lat, line.startPoint.lng] : null);
-      setPointeMarker(line.endPoint?.lat ? [line.endPoint.lat, line.endPoint.lng] : null);
+      setStartMarker(line.startPoint?.lat ? [line.startPoint.lat, line.startPoint.lng] : null);
+      setEndMarker(line.endPoint?.lat ? [line.endPoint.lat, line.endPoint.lng] : null);
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
@@ -131,6 +126,14 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
       document.body.style.overflow = 'auto';
     };
   }, [visible, line]);
+
+  useEffect(() => {
+    if (visible && mapRef.current) {
+      setTimeout(() => {
+        mapRef.current.invalidateSize();
+      }, 100);
+    }
+  }, [visible]);
 
   const voltageOptions = [
     { label: 'Basse Tension (BT)', value: 'Basse Tension' },
@@ -154,10 +157,10 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target || e;
-    if (name === 'posteSource' || name === 'postePointe') {
+    if (name === 'startPoint' || name === 'endPoint') {
       setLineData((prev) => ({
         ...prev,
-        [name]: { ...prev[name], nom: value },
+        [name]: { ...prev[name], name: value },
       }));
     } else {
       setLineData((prev) => ({ ...prev, [name]: value }));
@@ -165,34 +168,52 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
   };
 
   const handleUpdate = async () => {
-    if (!line?._id || !lineData.nom_Ligne || !lineData.type || !lineData.siteId) {
-      showToast('error', 'Erreur', 'Données requises manquantes');
+    if (!line?._id || !lineData.nom_L || !lineData.type || !lineData.site) {
+      toast.error('Les champs Nom, Type et Site sont obligatoires.', toastConfig);
+      return;
+    }
+    if (!lineData.startPoint.lat || !lineData.endPoint.lat) {
+      toast.error("Veuillez sélectionner les localisations pour le point de départ et d'arrivée.", toastConfig);
       return;
     }
 
     try {
       const payload = {
-        nom_L: lineData.nom_Ligne,
+        nom_L: lineData.nom_L,
         code: lineData.code,
         type: lineData.type,
-        lengthKm: lineData.longueurKm,
-        type_conducteur: lineData.typeConducteur,
-        site: lineData.siteId,
-        status: lineData.statut,
+        lengthKm: parseFloat(lineData.lengthKm) || null,
+        type_conducteur: lineData.type_conducteur,
+        site: lineData.site,
+        status: lineData.status,
         description: lineData.description,
-        startPoint: lineData.posteSource,
-        endPoint: lineData.postePointe,
-        nombrePoteaux: lineData.nombrePoteaux,
+        startPoint: {
+          name: lineData.startPoint.name || 'Point de départ',
+          lat: lineData.startPoint.lat,
+          lng: lineData.startPoint.lng,
+        },
+        endPoint: {
+          name: lineData.endPoint.name || 'Point d\'arrivée',
+          lat: lineData.endPoint.lat,
+          lng: lineData.endPoint.lng,
+        },
+        nombrePoteaux: parseInt(lineData.nombrePoteaux) || 0,
       };
+      console.log('Update payload:', JSON.stringify(payload, null, 2));
       const { data } = await axios.put(`http://localhost:5000/api/ligne/${line._id}`, payload);
-      showToast('success', 'Succès', 'Ligne mise à jour');
+      toast.success('Ligne mise à jour avec succès.', toastConfig);
       if (typeof onSave === 'function') {
         await onSave({ ...data, _id: line._id });
       }
-      setTimeout(onClose, 600);
+      onHide(); // Close immediately after success
     } catch (error) {
-      console.error('Erreur détaillée:', error);
-      showToast('error', 'Erreur', error.response?.data?.message || 'Échec de la mise à jour');
+      const errorMessage = error.response?.data?.message || 'Échec de la mise à jour.';
+      console.error('Update error:', {
+        message: errorMessage,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+      toast.error(errorMessage, toastConfig);
     }
   };
 
@@ -207,15 +228,16 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
               ...prev[selectingPoint],
               lat,
               lng,
-              nom: prev[selectingPoint].nom || (selectingPoint === 'posteSource' ? 'Poste Source' : 'Poste Pointe'),
+              name: prev[selectingPoint].name || (selectingPoint === 'startPoint' ? 'Point de départ' : 'Point d\'arrivée'),
             },
           }));
-          if (selectingPoint === 'posteSource') {
-            setSourceMarker([lat, lng]);
-          } else if (selectingPoint === 'postePointe') {
-            setPointeMarker([lat, lng]);
+          if (selectingPoint === 'startPoint') {
+            setStartMarker([lat, lng]);
+          } else if (selectingPoint === 'endPoint') {
+            setEndMarker([lat, lng]);
           }
           setSelectingPoint(null);
+          toast.success(`Point ${selectingPoint === 'startPoint' ? 'de départ' : 'd\'arrivée'} sélectionné.`, toastConfig);
         }
       },
     });
@@ -224,7 +246,7 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
 
   const handleSearch = async () => {
     if (!searchQuery) {
-      showToast('warn', 'Recherche vide', 'Veuillez entrer une adresse à rechercher.');
+      toast.warn('Veuillez entrer une adresse à rechercher.', toastConfig);
       return;
     }
 
@@ -241,15 +263,15 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
         }
         setLineData((prev) => ({
           ...prev,
-          posteSource: { ...prev.posteSource, lat: latLng[0], lng: latLng[1], nom: searchQuery },
+          startPoint: { ...prev.startPoint, lat: latLng[0], lng: latLng[1], name: searchQuery },
         }));
-        setSourceMarker(latLng);
-        showToast('success', 'Localisation trouvée', 'L’adresse a été localisée avec succès.');
+        setStartMarker(latLng);
+        toast.success('Localisation trouvée.', toastConfig);
       } else {
-        showToast('error', 'Aucune localisation', 'Aucune adresse trouvée pour cette recherche en Tunisie.');
+        toast.error('Aucune adresse trouvée pour cette recherche en Tunisie.', toastConfig);
       }
     } catch (error) {
-      showToast('error', 'Erreur de recherche', 'Erreur lors de la recherche d’adresse.');
+      toast.error('Erreur lors de la recherche d’adresse.', toastConfig);
       console.error('Erreur handleSearch:', error);
     }
   };
@@ -257,42 +279,38 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
   const handleResetMarkers = () => {
     setLineData((prev) => ({
       ...prev,
-      posteSource: { nom: '', lat: null, lng: null },
-      postePointe: { nom: '', lat: null, lng: null },
+      startPoint: { name: '', lat: null, lng: null },
+      endPoint: { name: '', lat: null, lng: null },
     }));
-    setSourceMarker(null);
-    setPointeMarker(null);
+    setStartMarker(null);
+    setEndMarker(null);
     setSearchQuery('');
-    showToast('info', 'Réinitialisation', 'Marqueurs et coordonnées réinitialisés');
+    toast.info('Marqueurs et coordonnées réinitialisés.', toastConfig);
   };
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
-      onClose();
+      console.log('Overlay clicked, closing modal.');
+      onHide();
     }
   };
 
-  const handleCloseClick = (e) => {
-    e.stopPropagation();
-    onClose();
-  };
-
-  const handleCancelClick = (e) => {
-    e.stopPropagation();
-    onClose();
+  const handleClose = () => {
+    console.log('Close button clicked, closing modal.');
+    onHide();
   };
 
   if (!visible) return null;
 
   return (
-    <div className={`line-edit-modal-overlay ${visible ? 'visible' : ''}`} onClick={handleOverlayClick}>
+    <div className="line-edit-modal-overlay visible" onClick={handleOverlayClick}>
       <div className="line-edit-modal-container">
         <div className="line-edit-modal-header">
           <div className="line-edit-header-content">
             <i className="pi pi-bolt line-edit-header-icon" />
             <h2>Modifier la Ligne Électrique</h2>
           </div>
-          <button className="line-edit-close-btn" onClick={handleCloseClick}>
+          <button className="line-edit-close-btn" onClick={handleClose}>
             <i className="pi pi-times" />
           </button>
         </div>
@@ -303,8 +321,8 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
                 <i className="pi pi-align-left" /> Nom de la ligne *
               </label>
               <InputText
-                name="nom_Ligne"
-                value={lineData.nom_Ligne}
+                name="nom_L"
+                value={lineData.nom_L}
                 onChange={handleInputChange}
                 placeholder="Ligne principale A"
                 className="line-edit-form-input"
@@ -342,8 +360,8 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
                 <i className="pi pi-arrows-h" /> Longueur (km)
               </label>
               <InputText
-                name="longueurKm"
-                value={lineData.longueurKm}
+                name="lengthKm"
+                value={lineData.lengthKm}
                 onChange={handleInputChange}
                 placeholder="10.5"
                 keyfilter="num"
@@ -355,10 +373,10 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
                 <i className="pi pi-wifi" /> Type de conducteur
               </label>
               <Dropdown
-                name="typeConducteur"
-                value={lineData.typeConducteur}
+                name="type_conducteur"
+                value={lineData.type_conducteur}
                 options={conductorOptions}
-                onChange={(e) => handleInputChange({ target: { name: 'typeConducteur', value: e.value } })}
+                onChange={(e) => handleInputChange({ target: { name: 'type_conducteur', value: e.value } })}
                 placeholder="Sélectionnez le type"
                 className="line-edit-form-dropdown"
               />
@@ -368,10 +386,10 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
                 <i className="pi pi-check-circle" /> Statut
               </label>
               <Dropdown
-                name="statut"
-                value={lineData.statut}
+                name="status"
+                value={lineData.status}
                 options={statusOptions}
-                onChange={(e) => handleInputChange({ target: { name: 'statut', value: e.value } })}
+                onChange={(e) => handleInputChange({ target: { name: 'status', value: e.value } })}
                 className="line-edit-form-dropdown"
               />
             </div>
@@ -393,10 +411,10 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
                 <i className="pi pi-building" /> Site *
               </label>
               <Dropdown
-                name="siteId"
-                value={lineData.siteId}
+                name="site"
+                value={lineData.site}
                 options={siteOptions}
-                onChange={(e) => handleInputChange({ target: { name: 'siteId', value: e.value } })}
+                onChange={(e) => handleInputChange({ target: { name: 'site', value: e.value } })}
                 placeholder={loadingSites ? 'Chargement...' : 'Sélectionnez le site'}
                 className="line-edit-form-dropdown"
                 required
@@ -422,8 +440,8 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
               <div className="line-edit-map-container">
                 <MapContainer
                   center={
-                    lineData.posteSource?.lat && lineData.postePointe?.lat
-                      ? [(lineData.posteSource.lat + lineData.postePointe.lat) / 2, (lineData.posteSource.lng + lineData.postePointe.lng) / 2]
+                    lineData.startPoint?.lat && lineData.endPoint?.lat
+                      ? [(lineData.startPoint.lat + lineData.endPoint.lat) / 2, (lineData.startPoint.lng + lineData.endPoint.lng) / 2]
                       : [36.8065, 10.1815]
                   }
                   zoom={8}
@@ -435,24 +453,24 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
                     attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                   />
                   <MapClickHandler />
-                  {sourceMarker && <Marker position={sourceMarker} icon={lineIcon} />}
-                  {pointeMarker && <Marker position={pointeMarker} icon={lineIcon} />}
+                  {startMarker && <Marker position={startMarker} icon={lineIcon} />}
+                  {endMarker && <Marker position={endMarker} icon={lineIcon} />}
                 </MapContainer>
               </div>
               <div className="line-edit-map-controls">
                 <button
                   className="line-edit-btn line-edit-btn-select"
-                  onClick={() => setSelectingPoint('posteSource')}
-                  disabled={selectingPoint === 'posteSource'}
+                  onClick={() => setSelectingPoint('startPoint')}
+                  disabled={selectingPoint === 'startPoint'}
                 >
-                  <i className="pi pi-map-marker" /> Sélectionner le poste source
+                  <i className="pi pi-map-marker" /> Sélectionner le point de départ
                 </button>
                 <button
                   className="line-edit-btn line-edit-btn-select"
-                  onClick={() => setSelectingPoint('postePointe')}
-                  disabled={selectingPoint === 'postePointe'}
+                  onClick={() => setSelectingPoint('endPoint')}
+                  disabled={selectingPoint === 'endPoint'}
                 >
-                  <i className="pi pi-map-marker" /> Sélectionner le poste pointe
+                  <i className="pi pi-map-marker" /> Sélectionner le point d'arrivée
                 </button>
                 <button className="line-edit-btn line-edit-btn-reset" onClick={handleResetMarkers}>
                   <i className="pi pi-refresh" /> Réinitialiser les marqueurs
@@ -461,19 +479,19 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
               <div className="line-edit-coords-grid">
                 <div className="line-edit-form-group">
                   <label className="line-edit-form-label">
-                    <i className="pi pi-map-marker" /> Poste Source
+                    <i className="pi pi-map-marker" /> Point de départ
                   </label>
                   <InputText
-                    name="posteSource"
-                    value={lineData.posteSource.nom}
+                    name="startPoint"
+                    value={lineData.startPoint.name}
                     onChange={handleInputChange}
-                    placeholder="Poste source A"
+                    placeholder="Point de départ A"
                     className="line-edit-form-input"
                   />
                   <InputText
                     value={
-                      lineData.posteSource.lat
-                        ? `Lat: ${lineData.posteSource.lat.toFixed(6)}, Lng: ${lineData.posteSource.lng.toFixed(6)}`
+                      lineData.startPoint.lat
+                        ? `Lat: ${lineData.startPoint.lat.toFixed(6)}, Lng: ${lineData.startPoint.lng.toFixed(6)}`
                         : 'Non défini'
                     }
                     readOnly
@@ -482,19 +500,19 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
                 </div>
                 <div className="line-edit-form-group">
                   <label className="line-edit-form-label">
-                    <i className="pi pi-map-marker" /> Poste de distribution
+                    <i className="pi pi-map-marker" /> Point d'arrivée
                   </label>
                   <InputText
-                    name="postePointe"
-                    value={lineData.postePointe.nom}
+                    name="endPoint"
+                    value={lineData.endPoint.name}
                     onChange={handleInputChange}
-                    placeholder="Poste de distribution B"
+                    placeholder="Point d'arrivée B"
                     className="line-edit-form-input"
                   />
                   <InputText
                     value={
-                      lineData.postePointe.lat
-                        ? `Lat: ${lineData.postePointe.lat.toFixed(6)}, Lng: ${lineData.postePointe.lng.toFixed(6)}`
+                      lineData.endPoint.lat
+                        ? `Lat: ${lineData.endPoint.lat.toFixed(6)}, Lng: ${lineData.endPoint.lng.toFixed(6)}`
                         : 'Non défini'
                     }
                     readOnly
@@ -518,7 +536,7 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
           </div>
         </div>
         <div className="line-edit-modal-footer">
-          <button className="line-edit-cancel-btn" onClick={handleCancelClick}>
+          <button className="line-edit-cancel-btn" onClick={handleClose}>
             Annuler
           </button>
           <button className="line-edit-submit-btn" onClick={handleUpdate}>
@@ -532,13 +550,13 @@ const LineEdit = ({ visible, onClose, line, onSave }) => {
 
 LineEdit.propTypes = {
   visible: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
+  onHide: PropTypes.func.isRequired,
   line: PropTypes.shape({
     _id: PropTypes.string,
     nom_L: PropTypes.string,
     code: PropTypes.string,
     type: PropTypes.string,
-    lengthKm: PropTypes.number,
+    lengthKm: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     type_conducteur: PropTypes.string,
     site: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     status: PropTypes.string,

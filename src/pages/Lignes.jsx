@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 import axios from 'axios';
+import { debounce } from 'lodash';
 import Sidebar from '../components/Sidebar';
 import KnobPopup from '../components/KwhPopline';
 import LineManagement from '../components/LineManagement';
 import LineDetailsModal from '../components/LineDetailsModal';
 import LineEdit from '../components/LineEdit';
 import DeleteLinePage from '../components/DeleteLinePage';
-import {  ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './cssP/Lignes.css';
 
@@ -25,16 +26,59 @@ function Lignes() {
   const [lines, setLines] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [poteauxCounts, setPoteauxCounts] = useState({});
+  const [loadingCounts, setLoadingCounts] = useState(false);
   const linesPerPage = 10;
 
   const fetchLines = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/ligne');
-      setLines(response.data);
-      console.log('Fetched lines:', response.data);
+      setLoadingCounts(true);
+      const response = await axios.get(`http://localhost:5000/api/ligne?t=${Date.now()}`, {
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+      const fetchedLines = Array.isArray(response.data) ? response.data : [];
+      console.log('Fetched lines:', JSON.stringify(fetchedLines, null, 2));
+      setLines([...fetchedLines]); // Ensure new array reference
+
+      const countPromises = fetchedLines.map(async (line) => {
+        try {
+          const countResponse = await axios.get(`http://localhost:5000/api/poteau/ligne/${line._id}/count`, {
+            headers: { 'Cache-Control': 'no-cache' }
+          });
+          console.log(`Count for line ${line._id}:`, countResponse.data);
+          return { ligneId: line._id, count: countResponse.data.count || 0 };
+        } catch (error) {
+          console.error(`Error fetching count for line ${line._id}:`, error.message);
+          if (error.response && error.response.status !== 404) {
+            toast.error(`Erreur lors du chargement des poteaux pour la ligne ${line.nom_L}`);
+          }
+          return { ligneId: line._id, count: 0 };
+        }
+      });
+
+      const counts = await Promise.all(countPromises);
+      console.log('All counts:', counts);
+      const countsMap = counts.reduce((acc, { ligneId, count }) => {
+        acc[ligneId] = count;
+        return acc;
+      }, {});
+      console.log('Poteaux counts:', countsMap);
+      setPoteauxCounts(countsMap);
+
+      const totalPages = Math.ceil(fetchedLines.length / linesPerPage);
+      console.log('Total pages:', totalPages, 'Current page:', currentPage);
+      if (currentPage > totalPages && totalPages > 0) {
+        console.log('Adjusting currentPage to:', totalPages);
+        setCurrentPage(totalPages);
+      } else if (fetchedLines.length === 0) {
+        console.log('No lines, resetting currentPage to 1');
+        setCurrentPage(1);
+      }
     } catch (error) {
-      console.error('Fetch lines error:', error);
+      console.error('Fetch lines error:', error.response?.data || error.message);
       toast.error('🚨 Erreur lors du chargement des lignes');
+    } finally {
+      setLoadingCounts(false);
     }
   };
 
@@ -44,9 +88,7 @@ function Lignes() {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      if (mobile) {
-        setSidebarOpen(false);
-      }
+      if (mobile) setSidebarOpen(false);
     };
 
     window.addEventListener('resize', handleResize);
@@ -54,23 +96,44 @@ function Lignes() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    console.log('Lines state updated:', lines);
+    console.log('Poteaux counts updated:', poteauxCounts);
+    console.log('Current page:', currentPage);
+  }, [lines, poteauxCounts, currentPage]);
+
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value) => {
+        console.log('Search term updated:', value);
+        setSearchTerm(value);
+        setCurrentPage(1);
+      }, 300),
+    []
+  );
+
   const filteredLines = useMemo(() => {
-    return lines.filter(
+    const filtered = lines.filter(
       (line) =>
         (line.nom_L || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (line.site?.nom || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        String(line.nombrePoteaux || '').includes(searchTerm.toLowerCase())
+        String(poteauxCounts[line._id] || 0).includes(searchTerm.toLowerCase())
     );
-  }, [lines, searchTerm]);
+    console.log('Filtered lines:', filtered);
+    return filtered;
+  }, [lines, searchTerm, poteauxCounts]);
 
   const totalPages = Math.ceil(filteredLines.length / linesPerPage);
   const paginatedLines = useMemo(() => {
     const startIndex = (currentPage - 1) * linesPerPage;
-    return filteredLines.slice(startIndex, startIndex + linesPerPage);
+    const paginated = filteredLines.slice(startIndex, startIndex + linesPerPage);
+    console.log('Paginated lines:', paginated);
+    return paginated;
   }, [filteredLines, currentPage]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
+      console.log('Changing page to:', page);
       setCurrentPage(page);
     }
   };
@@ -82,35 +145,41 @@ function Lignes() {
   };
 
   const handleCloseKwhPopup = () => {
-    console.log('Closing KwhPopup, selectedLine:', selectedLine);
+    console.log('Closing KwhPopup:', selectedLine);
     setKwhPopup(false);
     setSelectedLine(null);
   };
 
-  const handleEditLine = (updatedLine) => {
-  if (!updatedLine?._id) {
-    console.error('Received invalid line data:', updatedLine);
-    return;
-  }
-
-  setLines(prevLines => 
-    prevLines.map(line => 
-      line._id === updatedLine._id ? { ...line, ...updatedLine } : line
-    )
-  );
-};
+  const handleEditLine = async (updatedLine) => {
+    if (!updatedLine?._id) {
+      console.error('Invalid line data:', updatedLine);
+      toast.error('🚨 Données de ligne invalides');
+      return;
+    }
+    try {
+      await axios.put(`http://localhost:5000/api/ligne/${updatedLine._id}`, updatedLine);
+      await fetchLines();
+      toast.success('Ligne mise à jour avec succès !');
+      setIsEditModalOpen(false);
+      setEditLine(null);
+    } catch (error) {
+      console.error('Edit line error:', error.response?.data || error.message);
+      toast.error('🚨 Erreur lors de la mise à jour de la ligne');
+    }
+  };
 
   const handleDeleteLine = async (lineId, reason) => {
+    console.log('handleDeleteLine called with lineId:', lineId, 'Reason:', reason);
     try {
-      await axios.delete(`http://localhost:5000/api/ligne/${lineId}`);
-      setLines(lines.filter((line) => line._id !== lineId));
+      // Rely on DeleteLinePage to perform the deletion
+      await new Promise(resolve => setTimeout(resolve, 500)); // Ensure backend sync
+      await fetchLines();
       toast.success('Ligne supprimée avec succès !');
       setShowDeleteModal(false);
       setDeleteLineId(null);
-      fetchLines();
     } catch (error) {
-      console.error('Delete line error:', error);
-      toast.error('🚨 Une erreur est survenue lors de la suppression de la ligne');
+      console.error('Error refreshing lines after deletion:', error.response?.data || error.message);
+      toast.error(`🚨 Erreur lors du rafraîchissement des lignes: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -121,10 +190,10 @@ function Lignes() {
       type: line.type,
       lengthKm: line.lengthKm || '0',
       site: line.site?.nom || 'Site non attribué',
-      startPoint: line.startPoint || { name: 'Point A', lat: 48.8566, lng: 2.3522 },
-      endPoint: line.endPoint || { name: 'Point B', lat: 48.8600, lng: 2.3600 },
+      startPoint: line.startPoint || { name: 'Point A', lat: 36.8065, lng: 10.1815 },
+      endPoint: line.endPoint || { name: 'Point B', lat: 36.8100, lng: 10.1900 },
       status: line.status,
-      nombrePoteaux: line.nombrePoteaux || 0,
+      nombrePoteaux: poteauxCounts[line._id] || 0,
       type_conducteur: line.type_conducteur || '',
       description: line.description || '',
       code: line.code || '',
@@ -138,13 +207,11 @@ function Lignes() {
   };
 
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
+    debouncedSearch(e.target.value);
   };
 
   const handleClearSearch = () => {
-    setSearchTerm('');
-    setCurrentPage(1);
+    debouncedSearch('');
   };
 
   const handleOpenEditModal = (line) => {
@@ -156,10 +223,10 @@ function Lignes() {
       type_conducteur: line.type_conducteur || '',
       description: line.description || '',
       site: line.site?._id || '',
-      startPoint: line.startPoint || { name: 'Point A', lat: 48.8566, lng: 2.3522 },
-      endPoint: line.endPoint || { name: 'Point B', lat: 48.8600, lng: 2.3600 },
+      startPoint: line.startPoint || { name: 'Point A', lat: 36.8065, lng: 10.1815 },
+      endPoint: line.endPoint || { name: 'Point B', lat: 36.8100, lng: 10.1900 },
       status: line.status,
-      nombrePoteaux: line.nombrePoteaux || 0,
+      nombrePoteaux: poteauxCounts[line._id] || 0,
       code: line.code || '',
     };
     setEditLine(mappedLine);
@@ -276,7 +343,7 @@ function Lignes() {
                         </div>
                         <div className="sm-line-card-item">
                           <i className="ri-pantone-line" />
-                          <span>{line.nombrePoteaux || 0} poteaux</span>
+                          <span>{loadingCounts ? 'Chargement...' : (poteauxCounts[line._id] || 0)} poteaux</span>
                         </div>
                         <div className="sm-line-card-item">
                           <i
@@ -345,7 +412,7 @@ function Lignes() {
               </div>
             ) : (
               <div className="sm-table-responsive">
-                <table className="sm-lines-table">
+                <table className="sm-lines-table" key={lines.length}>
                   <thead>
                     <tr>
                       <th>
@@ -420,7 +487,7 @@ function Lignes() {
                           <td>
                             <div className="sm-poles-cell">
                               <i className="ri-lightbulb-line" />
-                              {line.nombrePoteaux || 0} poteaux
+                              {loadingCounts ? 'Chargement...' : (poteauxCounts[line._id] || 0)} poteaux
                             </div>
                           </td>
                           <td>
@@ -527,7 +594,7 @@ function Lignes() {
           </div>
         </main>
         {kwhPopup && selectedLine && (
-          <KnobPopup 
+          <KnobPopup
             onClose={handleCloseKwhPopup}
             line={selectedLine}
             key={selectedLine._id}
@@ -537,6 +604,7 @@ function Lignes() {
           <LineManagement
             visible={showLineManagement}
             onHide={() => setShowLineManagement(false)}
+            onSave={() => fetchLines()}
           />
         )}
         {showDetailsModal && selectedLine && (

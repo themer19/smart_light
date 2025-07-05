@@ -231,7 +231,7 @@ function Validationuser() {
 
         <div className="validation-button-container">
           <button
-            className="validation-btn"
+            className="save-btn"
             onClick={validateCode}
             disabled={attempts >= 3 || timeLeft === 0}
           >

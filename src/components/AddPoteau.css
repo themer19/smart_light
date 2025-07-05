@@ -101,7 +101,7 @@
 }
 
 .poteau-luminosite-icon {
-  color: #f1c40f !important; /* Icône du label de luminosité en jaune */
+  color: #f1c40f !important;
 }
 
 .poteau-form-input {
@@ -116,7 +116,7 @@
 
 .poteau-form-input:focus {
   border-color: #3a1ef3;
-  box-shadow: 0 0 0 3px rgba(30, 197, 243, 0.15);
+  box-shadow: 0 0 0 3px rgba(58, 30, 243, 0.15);
   background: white;
 }
 
@@ -131,7 +131,7 @@
 
 .poteau-form-dropdown:focus {
   border-color: #3a1ef3;
-  box-shadow: 0 0 0 3px rgba(30, 197, 243, 0.15);
+  box-shadow: 0 0 0 3px rgba(58, 30, 243, 0.15);
   background: white;
 }
 
@@ -156,6 +156,7 @@
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 12px;
+  position: relative;
 }
 
 .poteau-map-btn {
@@ -199,11 +200,11 @@
 }
 
 .poteau-form-slider .p-slider-range {
-  background: #f1c40f; /* Barre remplie en jaune */
+  background: #f1c40f;
 }
 
 .poteau-form-slider .p-slider-handle {
-  background: #f1c40f; /* Curseur en jaune */
+  background: #f1c40f;
   border: 2px solid #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s ease;
@@ -222,8 +223,8 @@
 .poteau-slider-value {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #f1c40f; /* Valeur en jaune */
-  background: #fff9db; /* Fond clair pour la valeur */
+  color: #f1c40f;
+  background: #fff9db;
   padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.3s ease;
@@ -266,9 +267,9 @@
 }
 
 .poteau-submit-btn:hover {
-  background: #3a1ef3;
+  background: #2f1cc2;
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(30, 197, 243, 0.3);
+  box-shadow: 0 3px 10px rgba(58, 30, 243, 0.3);
 }
 
 @media (max-width: 768px) {
@@ -300,17 +301,64 @@
 }
 
 .blue-btn {
-  background-color: #3b82f6 !important; /* Tailwind's blue-500 */
-  color: white !important; /* Ensure text/icon is readable */
-  border: none !important; /* Remove default border */
+  background-color: #3b82f6 !important;
+  color: white !important;
+  border: none !important;
 }
 
 .blue-btn:hover {
-  background-color: #2563eb !important; /* Darker blue for hover (blue-600) */
+  background-color: #2563eb !important;
 }
 
 .blue-btn:disabled {
-  background-color: #93c5fd !important; /* Lighter blue for disabled (blue-300) */
-  color: #d1d5db !important; /* Gray text for disabled */
+  background-color: #93c5fd !important;
+  color: #d1d5db !important;
   cursor: not-allowed !important;
+}
+
+/* Legend for map markers */
+.poteau-map-legend {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.poteau-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.poteau-legend-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+}
+
+.poteau-legend-icon-site {
+  background-color: #00ff00;
+}
+
+.poteau-legend-icon-line-start {
+  background-color: #0000ff;
+}
+
+.poteau-legend-icon-line-end {
+  background-color: #ff0000;
+}
+
+.poteau-legend-icon-poteau {
+  background-color: #ffff00;
+}
+
+.poteau-legend-icon-existing {
+  background-color: #808080;
 }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 import Sidebar from '../components/Sidebar';
@@ -31,7 +30,6 @@ function Poteaux() {
     setLoading(true);
     try {
       const response = await axios.get('http://localhost:5000/api/poteau');
-      console.log('Réponse complète de l\'API:', JSON.stringify(response.data, null, 2));
       setPoteaux(response.data);
     } catch (error) {
       toast.error('Erreur : Impossible de charger les poteaux.');
@@ -129,13 +127,11 @@ function Poteaux() {
   };
 
   const handlePoteauAdded = (newPoteau) => {
-    console.log('Nouveau poteau ajouté:', JSON.stringify(newPoteau, null, 2));
     fetchPoteaux();
     toast.success('Poteau créé avec succès !');
   };
 
   const handlePoteauEdited = (updatedPoteau) => {
-    console.log('Poteau modifié:', JSON.stringify(updatedPoteau, null, 2));
     fetchPoteaux();
     setIsEditModalOpen(false);
     setEditPoteau(null);
@@ -143,7 +139,6 @@ function Poteaux() {
   };
 
   const handlePoteauDeleted = () => {
-    console.log('Poteau supprimé, ID:', poteauIdToDelete);
     fetchPoteaux();
     setIsDeleteModalOpen(false);
     setPoteauIdToDelete(null);
@@ -366,13 +361,27 @@ function Poteaux() {
                 <table className="pt-poteaux-table">
                   <thead>
                     <tr>
-                      <th>Nom du Poteau</th>
-                      <th>Code</th>
-                      <th>Site associé</th>
-                      <th>Ligne associée</th>
-                      <th>Niveau de Lumière</th>
-                      <th>Statut</th>
-                      <th>Actions</th>
+                      <th>
+                        <i className="ri-lightbulb-line pt-table-icon"></i> Nom du Poteau
+                      </th>
+                      <th>
+                        <i className="ri-barcode-line pt-table-icon"></i> Code
+                      </th>
+                      <th>
+                        <i className="ri-home-4-line pt-table-icon"></i> Site associé
+                      </th>
+                      <th>
+                        <i className="ri-route-line pt-table-icon"></i> Ligne associée
+                      </th>
+                      <th>
+                        <i className="ri-sun-line pt-table-icon"></i> Niveau de Lumière
+                      </th>
+                      <th>
+                        <i className="ri-flashlight-fill pt-table-icon"></i> Statut
+                      </th>
+                      <th>
+                        <i className="ri-settings-3-line pt-table-icon"></i> Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -393,7 +402,7 @@ function Poteaux() {
                                 <span>{poteau.nom}</span>
                               </div>
                             </div>
-                          </td>
+                            </td>
                           <td>
                             <div className="pt-poteau-cell">
                               <i className="ri-barcode-line" />

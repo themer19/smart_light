@@ -12,13 +12,13 @@ import RegenerateKeyPage from '../components/RegenerateKeyPage';
 import EditLicencePage from '../components/EditLicencePage';
 import DeleteLicencePage from '../components/DeleteLicencePage';
 import { 
-  RiFileTextLine, RiTable2, RiSearchLine, RiCloseLine, RiFilter3Line, 
+  RiTable2, RiSearchLine, RiCloseLine, RiFilter3Line, 
   RiArrowUpDownLine, RiArrowLeftSLine, RiArrowRightSLine, 
   RiLightbulbFlashLine, RiUserStarLine, RiFlashlightFill, 
-  RiHomeWifiLine, RiKey2Line, RiFileCopyLine, RiMapPinLine, 
+  RiHomeWifiLine, RiGlobalLine, RiFileCopyLine, RiMapPinLine, 
   RiCalendar2Line, RiAlarmWarningLine, RiSensorLine, RiPlug2Line,
   RiRefreshLine, RiPauseLine, RiPlayLine, RiEditLine, 
-  RiDownloadLine, RiDeleteBinLine, RiKeyLine, RiSettingsLine
+  RiDeleteBinLine, RiKeyLine, RiSettingsLine
 } from 'react-icons/ri';
 
 function Licences() {
@@ -40,48 +40,59 @@ function Licences() {
   const [actionLicenceId, setActionLicenceId] = useState(null);
   const licencesPerPage = 5;
 
-  useEffect(() => {
-    const fetchLicences = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/licences/');
-        const formattedLicences = response.data.map(licence => ({
-          _id: licence._id,
-          nom: licence.nom || 'Licence sans nom',
-          type: licence.type || 'Type non spécifié',
-          site: { 
-            nom: licence.utilisateurId?.ville || 'Site non spécifié',
-            adresse: licence.utilisateurId?.adresse 
-          },
-          dateExpiration: licence.dateExpiration.split('T')[0],
-          statut: licence.statut || 'Inconnu',
-          appareilsAutorises: licence.lampadairesMax || 0,
-          zone: licence.zone,
-          cleLicence: licence.cleLicence || 'Non disponible',
-          identifiantUnique: licence.identifiantUnique,
-          utilisateur: {
-            _id: licence.utilisateurId?._id,
-            nom: `${licence.utilisateurId?.prenom || ''} ${licence.utilisateurId?.nom || ''}`.trim(),
-            email: licence.utilisateurId?.email || '',
-            niveauAcces: licence.utilisateurId?.role || 'Niveau inconnu',
-            telephone: licence.utilisateurId?.numéroDeTéléphone,
-            appareils: []
-          }
-        }));
-        
-        setLicences(formattedLicences);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-        toast.error('Erreur lors du chargement des licences');
-        console.error('Erreur API:', err);
+  const fetchLicences = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`http://localhost:5000/api/licences/?t=${Date.now()}`, {
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+      const formattedLicences = Array.isArray(response.data) ? response.data.map(licence => ({
+        _id: licence._id,
+        nom: licence.nom || 'Licence sans nom',
+        type: licence.type || 'Type non spécifié',
+        site: { 
+          nom: licence.utilisateurId?.ville || 'Site non spécifié',
+          adresse: licence.utilisateurId?.adresse 
+        },
+        dateExpiration: licence.dateExpiration.split('T')[0],
+        statut: licence.statut || 'Inconnu',
+        appareilsAutorises: licence.lampadairesMax || 0,
+        zone: licence.zone,
+        cleLicence: licence.cleLicence || 'Non disponible',
+        identifiantUnique: licence.identifiantUnique,
+        utilisateur: {
+          _id: licence.utilisateurId?._id,
+          nom: `${licence.utilisateurId?.prenom || ''} ${licence.utilisateurId?.nom || ''}`.trim(),
+          email: licence.utilisateurId?.email || '',
+          niveauAcces: licence.utilisateurId?.role || 'Niveau inconnu',
+          telephone: licence.utilisateurId?.numéroDeTéléphone,
+          appareils: []
+        }
+      })) : [];
+      console.log('Fetched licences:', JSON.stringify(formattedLicences, null, 2));
+      setLicences([...formattedLicences]); // Ensure new array reference
+      setLoading(false);
+      
+      const totalPages = Math.ceil(formattedLicences.length / licencesPerPage);
+      console.log('Total pages:', totalPages, 'Current page:', currentPage);
+      if (currentPage > totalPages && totalPages > 0) {
+        console.log('Adjusting currentPage to:', totalPages);
+        setCurrentPage(totalPages);
+      } else if (formattedLicences.length === 0) {
+        console.log('No licences, resetting currentPage to 1');
+        setCurrentPage(1);
       }
-    };
-
-    fetchLicences();
-  }, []);
+    } catch (err) {
+      console.error('Fetch licences error:', err.response?.data || err.message);
+      setError(err.message);
+      setLoading(false);
+      toast.error('Erreur lors du chargement des licences');
+    }
+  };
 
   useEffect(() => {
+    fetchLicences();
+
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
@@ -95,7 +106,13 @@ function Licences() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    console.log('Licences state updated:', licences);
+    console.log('Current page:', currentPage);
+  }, [licences, currentPage]);
+
   const handleLicenceAction = async (action, licenceId) => {
+    console.log(`Initiating action: ${action} for licenceId: ${licenceId}`);
     setActionLicenceId(licenceId);
     switch(action) {
       case 'renew':
@@ -121,58 +138,51 @@ function Licences() {
     }
   };
 
-  const handleActionSave = async (action, updatedData) => {
+  const handleActionSave = async (action) => {
+    console.log(`handleActionSave called for action: ${action}`);
     try {
-      const response = await axios.get('http://localhost:5000/api/licences/');
-      setLicences(response.data.map(licence => ({
-        _id: licence._id,
-        nom: licence.nom || 'Licence sans nom',
-        type: licence.type || 'Type non spécifié',
-        site: { 
-          nom: licence.utilisateurId?.ville || 'Site non spécifié',
-          adresse: licence.utilisateurId?.adresse 
-        },
-        dateExpiration: licence.dateExpiration.split('T')[0],
-        statut: licence.statut || 'Inconnu',
-        appareilsAutorises: licence.lampadairesMax || 0,
-        zone: licence.zone,
-        cleLicence: licence.cleLicence || 'Non disponible',
-        identifiantUnique: licence.identifiantUnique,
-        utilisateur: {
-          _id: licence.utilisateurId?._id,
-          nom: `${licence.utilisateurId?.prenom || ''} ${licence.utilisateurId?.nom || ''}`.trim(),
-          email: licence.utilisateurId?.email || '',
-          niveauAcces: licence.utilisateurId?.role || 'Niveau inconnu',
-          telephone: licence.utilisateurId?.numéroDeTéléphone,
-          appareils: []
-        }
-      })));
+      // Add slight delay to ensure backend sync
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await fetchLicences();
       toast.success(`${action.charAt(0).toUpperCase() + action.slice(1)} effectué avec succès`);
+      setIsRenewModalOpen(false);
+      setIsSuspendModalOpen(false);
+      setIsReactivateModalOpen(false);
+      setIsRegenerateModalOpen(false);
+      setIsEditModalOpen(false);
+      setIsDeleteModalOpen(false);
+      setActionLicenceId(null);
     } catch (error) {
-      toast.error(`Erreur lors du rechargement des licences: ${error.response?.data?.message || error.message}`);
+      console.error(`Error refreshing licences after ${action}:`, error.response?.data || error.message);
+      toast.error(`Erreur lors du rafraîchissement des licences: ${error.response?.data?.message || error.message}`);
     }
   };
 
   const filteredLicences = useMemo(() => {
-    return licences.filter(
+    const filtered = licences.filter(
       (licence) =>
-        licence.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        licence.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (licence.nom || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (licence.type || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (licence.site?.nom || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (licence.utilisateur?.nom || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (licence.utilisateur?.niveauAcces || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (licence.cleLicence || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
+    console.log('Filtered licences:', filtered);
+    return filtered;
   }, [licences, searchTerm]);
 
   const totalPages = Math.ceil(filteredLicences.length / licencesPerPage);
   const paginatedLicences = useMemo(() => {
     const startIndex = (currentPage - 1) * licencesPerPage;
-    return filteredLicences.slice(startIndex, startIndex + licencesPerPage);
+    const paginated = filteredLicences.slice(startIndex, startIndex + licencesPerPage);
+    console.log('Paginated licences:', paginated);
+    return paginated;
   }, [filteredLicences, currentPage]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
+      console.log('Changing page to:', page);
       setCurrentPage(page);
     }
   };
@@ -254,7 +264,7 @@ function Licences() {
 
   return (
     <div className="licences-page">
-      <div className="lc-container" style={{ display: 'flex', minHeight: '100vh' }}>
+      <div className="lc-container">
         <Sidebar
           onToggle={handleSidebarToggle}
           className={clsx('lc-sidebar', {
@@ -266,19 +276,13 @@ function Licences() {
           className={clsx('lc-main-content', {
             'lc-sidebar-collapsed': !sidebarOpen || isMobile,
           })}
-          style={{
-            flex: 1,
-            marginLeft: 0,
-            paddingLeft: 0,
-            marginTop: '2rem',
-          }}
         >
           <div className="lc-dashboard-card">
             <div className="lc-page-header">
               <div className="lc-header-content">
                 <div className="lc-title-wrapper">
-                  <div className="lc-title-icon-container" style={{background: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)'}}>
-                    <RiLightbulbFlashLine className="lc-main-icon" />
+                  <div className="lc-title-icon-container">
+                    <i className="ri-global-line lc-main-icon"></i>
                   </div>
                   <div>
                     <h1 className="lc-main-title">
@@ -375,7 +379,7 @@ function Licences() {
                           <span>{licence.utilisateur.appareils?.length || 0}/{licence.appareilsAutorises} appareils</span>
                         </div>
                         <div className="lc-licence-card-item">
-                          <RiKey2Line />
+                          <RiKeyLine />
                           <span className="lc-key-value">
                             {licence.cleLicence.substring(0, 8)}...
                           </span>
@@ -472,7 +476,7 @@ function Licences() {
               </div>
             ) : (
               <div className="lc-table-responsive">
-                <table className="lc-licences-table">
+                <table className="lc-licences-table" key={licences.length}>
                   <caption>Licences d'éclairage et leurs attributions</caption>
                   <thead>
                     <tr>
@@ -502,7 +506,7 @@ function Licences() {
                       </th>
                       <th>
                         <div className="table-header-with-icon">
-                          <RiKey2Line />
+                          <RiKeyLine />
                           <span>Clé de Licence</span>
                         </div>
                       </th>
@@ -582,7 +586,7 @@ function Licences() {
                           </td>
                           <td>
                             <div className="lc-licence-key">
-                              <RiKey2Line />
+                              <RiKeyLine />
                               <span className="lc-key-value">
                                 {licence.cleLicence || 'Non disponible'}
                               </span>
