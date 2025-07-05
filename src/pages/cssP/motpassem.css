@@ -1,6 +1,6 @@
 .mdp-page {
   font-family: 'Poppins', sans-serif;
-  background-image: url('/src/assets/blan.jpg');
+  background-image: url('/src/assets/bac.png');
   background-size: cover;
   background-position: center;
   display: flex;
@@ -38,16 +38,16 @@
     width: 40px; 
     height: 50px; 
     margin: 0 5px; 
-    caret-color: #1aff00;
+    caret-color: #10b981;
 }
 
 .validation-code-input:focus {
-    border-color: #1aff00; 
+    border-color: #10b981; 
     outline: none; 
 }
 
 .validation-btn {
-    background-color: #03e706;
+    background-color: #10b981;
     color: #fff;
     padding: 10px 10px;
     border: 1px solid transparent;
@@ -141,7 +141,7 @@
   .reset-button {
     width: 100%;
     padding: 10px;
-    background-color: #03e706;
+    background-color: #10b981;
     color: white;
     border: none;
     border-radius: 5px;
@@ -151,6 +151,6 @@
   }
   
   .reset-button:hover {
-    background-color: #02c305;
+    background-color: #10b981;
   }
   

@@ -4,7 +4,7 @@ import { Knob } from 'primereact/knob';
 import 'primeicons/primeicons.css';
 
 const KnobPopup = ({ line, onClose }) => {
-  const [value, setValue] = useState(50);
+  const [value, setValue] = useState(350);
   
   const primaryColor = '#0EA5E9';
   const primaryColorLight = '#62C2EF';
@@ -145,7 +145,7 @@ const KnobPopup = ({ line, onClose }) => {
               marginBottom: '0.5rem'
             }}>
               <i className="ri-sensor-line" style={{ marginRight: '0.5rem' }} />
-              Capteurs actifs
+              Poteaux associes
             </p>
             <p style={{ 
               fontSize: '1.5rem',
@@ -153,7 +153,7 @@ const KnobPopup = ({ line, onClose }) => {
               color: '#1F2937',
               margin: 0
             }}>
-              8
+              10
             </p>
           </div>
 

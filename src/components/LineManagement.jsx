@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import { Toast } from 'primereact/toast';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './LineManagement.css';
 import 'leaflet/dist/leaflet.css';
 
@@ -22,7 +23,6 @@ const lineIcon = new L.Icon({
 const generateCode = () => `LINE${Date.now().toString(16).toUpperCase()}`;
 
 const LineManagement = ({ visible, onHide, onSave }) => {
-  const toast = useRef(null);
   const mapRef = useRef(null);
   const [lineData, setLineData] = useState({
     name: '',
@@ -42,10 +42,6 @@ const LineManagement = ({ visible, onHide, onSave }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [siteOptions, setSiteOptions] = useState([]);
 
-  const showToast = (severity, summary, detail) => {
-    toast.current.show({ severity, summary, detail, life: 3000 });
-  };
-
   // Fetch sites and generate code
   useEffect(() => {
     const fetchSites = async () => {
@@ -59,7 +55,14 @@ const LineManagement = ({ visible, onHide, onSave }) => {
           }))
         );
       } catch (error) {
-        showToast('error', 'Erreur', 'Impossible de charger les sites');
+        toast.error('Impossible de charger les sites', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         console.error('Fetch sites error:', error);
       }
     };
@@ -69,7 +72,14 @@ const LineManagement = ({ visible, onHide, onSave }) => {
         const response = await axios.get('http://localhost:5000/api/ligne/generate-code');
         setLineData((prev) => ({ ...prev, code: response.data.code }));
       } catch (error) {
-        showToast('error', 'Erreur', 'Impossible de générer le code');
+        toast.error('Impossible de générer le code', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         console.error('Fetch code error:', error);
       }
     };
@@ -129,11 +139,25 @@ const LineManagement = ({ visible, onHide, onSave }) => {
 
   const handleSave = async () => {
     if (!lineData.name || !lineData.voltage || !lineData.site || !lineData.code) {
-      showToast('error', 'Erreur', 'Les champs Nom, Tension, Site et Code sont obligatoires');
+      toast.error('Les champs Nom, Tension, Site et Code sont obligatoires', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
     if (!lineData.startPoint.lat || !lineData.endPoint.lat) {
-      showToast('error', 'Erreur', "Veuillez sélectionner les localisations pour le point de départ et d'arrêt");
+      toast.error("Veuillez sélectionner les localisations pour le point de départ et d'arrêt", {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 
@@ -158,8 +182,15 @@ const LineManagement = ({ visible, onHide, onSave }) => {
           lng: lineData.endPoint.lng,
         },
       };
-      const response = await axios.post('http://localhost:8000/api/ligne', payload);
-      showToast('success', 'Succès', 'Ligne enregistrée avec succès');
+      const response = await axios.post('http://localhost:5000/api/ligne', payload);
+      toast.success('Ligne enregistrée avec succès', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       onSave(response.data);
       setLineData({
         name: '',
@@ -176,20 +207,41 @@ const LineManagement = ({ visible, onHide, onSave }) => {
       setStartMarker(null);
       setEndMarker(null);
       setSearchQuery('');
-      setTimeout(() => onHide(), 600);
+      setTimeout(() => onHide(), 3000); // Close modal after toast duration
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Erreur lors de l\'enregistrement';
       console.error('Save error:', errorMessage);
       if (errorMessage.includes('E11000 duplicate key')) {
-        showToast('error', 'Erreur', 'Le code existe déjà. Veuillez réessayer.');
+        toast.error('Le code existe déjà. Veuillez réessayer.', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         try {
-          const response = await axios.get('http://localhost:8000/api/ligne/generate-code');
+          const response = await axios.get('http://localhost:5000/api/ligne/generate-code');
           setLineData((prev) => ({ ...prev, code: response.data.code }));
         } catch (err) {
-          showToast('error', 'Erreur', 'Impossible de générer un nouveau code');
+          toast.error('Impossible de générer un nouveau code', {
+            position: 'top-right',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
         }
       } else {
-        showToast('error', 'Erreur', errorMessage);
+        toast.error(errorMessage, {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     }
   };
@@ -222,7 +274,14 @@ const LineManagement = ({ visible, onHide, onSave }) => {
             console.log('End marker set:', markerPos);
           }
           setSelectingPoint(null);
-          showToast('success', 'Succès', `Point ${selectingPoint === 'startPoint' ? 'de départ' : 'd\'arrêt'} sélectionné`);
+          toast.success(`Point ${selectingPoint === 'startPoint' ? 'de départ' : 'd\'arrêt'} sélectionné`, {
+            position: 'top-right',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
         }
       },
     });
@@ -231,7 +290,14 @@ const LineManagement = ({ visible, onHide, onSave }) => {
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      showToast('warn', 'Avertissement', 'Veuillez entrer une adresse à rechercher');
+      toast.warn('Veuillez entrer une adresse à rechercher', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 
@@ -251,12 +317,33 @@ const LineManagement = ({ visible, onHide, onSave }) => {
           startPoint: { ...prev.startPoint, lat: latLng[0], lng: latLng[1], name: searchQuery },
         }));
         setStartMarker(latLng);
-        showToast('success', 'Succès', 'Localisation trouvée');
+        toast.success('Localisation trouvée', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       } else {
-        showToast('error', 'Erreur', 'Aucune localisation trouvée pour cette adresse en Tunisie');
+        toast.error('Aucune localisation trouvée pour cette adresse en Tunisie', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     } catch (error) {
-      showToast('error', 'Erreur', 'Erreur lors de la recherche. Vérifiez votre connexion.');
+      toast.error('Erreur lors de la recherche. Vérifiez votre connexion.', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       console.error('Search error:', error);
     }
   };
@@ -270,7 +357,14 @@ const LineManagement = ({ visible, onHide, onSave }) => {
     setStartMarker(null);
     setEndMarker(null);
     setSearchQuery('');
-    showToast('info', 'Réinitialisation', 'Marqueurs et coordonnées réinitialisés');
+    toast.info('Marqueurs et coordonnées réinitialisés', {
+      position: 'top-right',
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   const dropdownItemTemplate = (option) => (
@@ -294,7 +388,17 @@ const LineManagement = ({ visible, onHide, onSave }) => {
 
   return (
     <div className="ligne-modal-overlay" style={{ display: visible ? 'flex' : 'none' }}>
-      <Toast ref={toast} />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <div className="ligne-modal-container">
         <div className="ligne-modal-header">
           <div className="ligne-header-content">

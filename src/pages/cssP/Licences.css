@@ -1,18 +1,18 @@
 .licences-page {
-  --yellow-color: #FFD700; /* Jaune vif pour les lampes */
-  --primary-color: #EA580C; /* Orange plus moderne */
-  --primary-dark: #9A3412; /* Plus profond */
-  --primary-light: #FFEDD5; /* Plus doux */
-  --secondary-color: #DB2777; /* Rose moderne */
-  --info-color: #0284C7; /* Bleu clair */
-  --warning-color: #F59E0B; /* Ambre */
-  --danger-color: #DC2626; /* Rouge vif */
-  --success-color: #16A34A; /* Vert frais */
-  --text-dark: #1F2937; /* Gris foncé */
-  --text-medium: #4B5563; /* Gris moyen */
-  --text-light: #9CA3AF; /* Gris clair */
-  --bg-light: #F5F5F4; /* Pierre naturelle */
-  --bg-card: #FFFFFF;
+  --yellow-color: #FFD700;        /* Jaune vif pour les lampes */
+  --primary-color: #F97316;       /* Orange plus moderne (orange vibrant) */
+  --primary-dark: #C2410C;        /* Orange profond */
+  --primary-light: #FFEDD5;       /* Orange très clair */
+  --secondary-color: #DB2777;     /* Rose moderne */
+  --info-color: #0284C7;          /* Bleu clair */
+  --warning-color: #F59E0B;       /* Ambre */
+  --danger-color: #DC2626;        /* Rouge vif */
+  --success-color: #16A34A;       /* Vert frais */
+  --text-dark: #1F2937;           /* Gris foncé */
+  --text-medium: #4B5563;         /* Gris moyen */
+  --text-light: #9CA3AF;          /* Gris clair */
+  --bg-light: #F5F5F4;            /* Pierre naturelle */
+  --bg-card: #FFFFFF; 
   --border-color: #E5E7EB;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -63,14 +63,14 @@ body {
 /* Main Content */
 .lc-main-content {
   flex: 1;
-  margin-left: 260px;
   padding: 1.5rem;
   transition: margin-left 0.3s ease;
   margin-top: 2rem;
+  margin-left: 260px;
 }
 
 .lc-main-content.lc-sidebar-collapsed {
-  margin-left: 60px;
+  margin-left: -2rem;
 }
 
 /* Dashboard Card */
@@ -238,12 +238,12 @@ body {
 
 /* List Icon */
 .lc-list-icon {
-  font-size: 1.75rem;
-  color: var(--primary-dark);
-  background: rgba(249, 115, 22, 0.1);
-  padding: 0.5rem;
-  border-radius: var(--radius-sm);
-  box-shadow: 0 2px 4px rgba(249, 115, 22, 0.1);
+  font-size: 2.75rem; /* Icon size, approximately 28px assuming 1rem = 16px */
+  color: var(--primary-dark); /* Matches original color */
+  background: rgba(249, 115, 22, 0.1); /* Consistent semi-transparent orange background */
+  padding: 0.5rem; /* Maintains original padding for background size */
+  border-radius: var(--radius-sm); /* Rounded corners, 0.25rem */
+  box-shadow: 0 10px 10px rgba(249, 115, 22, 0.1); /* Corrected shadow to match original */
 }
 
 /* Buttons */

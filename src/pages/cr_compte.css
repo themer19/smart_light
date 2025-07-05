@@ -1,146 +1,545 @@
-
-  .content {
-    background-color: rgba(255, 255, 255, 0.8); /* Blanc avec 80% d'opacité */
-    border-radius: 50px; 
-    position: relative;
-    overflow: hidden;
-    width: 50vw;
-    min-height: 450px;
-    max-width: 100%;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Optionnel : Ajout d'une ombre */
-  }
-  .icon {
-    max-width: 100px;  /* Limite la largeur maximale */
-    height: auto;       /* Maintient le ratio de l'image */
-    margin-bottom: 10px; /* Espace entre l'icône et le texte */
-    display: block; /* Centre l'image */
-    margin-left: auto;
-    margin-right: auto;
-}
-  .icon-container {
-    text-align: center; /* Centre l'icône */
-    margin-bottom: 10px; /* Espace entre l'icône et le texte */
-}
-  .content button
-  {
-    background-color: #00bfff;
-    color: #fff;
-    padding: 10px 10px;
-    border: 1px  solid transparent;
-    border-radius: 8px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-top: 10px;
-  }
-  .btn:hover
-  {
-    background-color: #82257b;
-  }
-
-  .header-text h1,.forgot a
-  {
-    color: #000000;
-    text-align: center;
-    font-family: Cursive;
-    
-  }
-  .switch-content
-  {
-    position:absolute;
-    top: 0;
-    right: 50%;
-    width: 50%;
-    height: 100%;
-    overflow: hidden;
-    transition: all 0.6s ease-in-out;
-    border-radius: 0 60px 60px 0;
-    z-index: 1000;
-  }
-  .content.active .switch-content
-  {
-    transform: translateX(100%);
-    border-radius: 60px 0 0 60px;
-  }
-  .switch
-  {
-    background-color: #00bfff;
-    color: #fff;
-    position: relative;
-    left: -100%;
-    height: 100%;
-    width: 200%;
-    transform: translateX(0);
-    transition: all 0.6s ease-in-out;
-  }
-  .switch h1
-  {
-    font-family: cursive;
-  }
-  .switch-panel
-  {
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 0 30px;
-    text-align: center;
-    top: 0;
-    transform: translateX(0);
-    transition: all 0.6s ease-in-out;
-  }
-  .switch-left {
-    transform: translateX(0);
+/* Variables */
+:root {
+  --cr-compte-primary-color: #10b981;
+  --cr-compte-primary-dark: #059669;
+  --cr-compte-secondary-color: #facc15;
+  --cr-compte-error-color: #ef4444;
+  --cr-compte-text-color: #1f2937;
+  --cr-compte-text-light: #6b7280;
+  --cr-compte-border-color: #e5e7eb;
+  --cr-compte-bg-light: #f9fafb;
+  --cr-compte-bg-dark: #111827;
+  --cr-compte-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  --cr-compte-transition: all 0.2s ease-in-out;
 }
 
-.content.active .switch-left {
-    transform: translateX(0);
+/* Reset and Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.switch-right {
-    right: 0;
-    transform: translateX(0);
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.content.active .switch-right {
-    transform: translateX(200%);
+/* Main Container */
+.cr-compte-auth-container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f3f4f8, var(--cr-compte-bg-light));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow: hidden;
 }
 
-.content.active .switch {
-    transform: translateX(50%);
+.cr-compte-auth-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--background-image);
+  background-size: cover;
+  background-position: center;
+  opacity: 0.1;
+  z-index: 1;
 }
 
-.right-box {
-    padding: 40px 30px 40px 40px;
-}
-.svg-bottom-right {
-    position: absolute; /* Positionne le SVG de manière absolue */
-    bottom: 10px; /* Espace depuis le bas du conteneur */
-    right: 100px; /* Espace depuis la droite du conteneur */
-    color: #ffffff; /* Couleur de l'icône, ici blanc */
-    transition: transform 0.3s; /* Transition pour les effets au survol */
+/* Title */
+.cr-compte-main-title {
+  font-size: 2rem;
+  font-weight: 800;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--cr-compte-text-color);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  z-index: 2;
+  letter-spacing: -0.02em;
+  background: linear-gradient(to right, var(--cr-compte-primary-color), var(--cr-compte-primary-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.svg-bottom-right:hover {
-    transform: scale(1.2); /* Agrandit le SVG au survol */
-}.content {
-    margin-top: 20px;
+/* Forms Container */
+.cr-compte-forms-container {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  z-index: 2;
+}
+
+.cr-compte-auth-forms {
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--cr-compte-shadow);
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Form Styles */
+.cr-compte-auth-form {
+  padding: 1.5rem;
+  transition: var(--cr-compte-transition);
+}
+
+.cr-compte-login-form {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.cr-compte-signup-form {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: translateX(100%);
+  overflow-y: auto;
+}
+
+.cr-compte-signup-mode .cr-compte-login-form {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.cr-compte-signup-mode .cr-compte-signup-form {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Form Header */
+.cr-compte-form-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.cr-compte-form-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 0.75rem;
+  transition: transform 0.3s ease;
+}
+
+.cr-compte-form-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--cr-compte-text-color);
+  margin-bottom: 0.25rem;
+}
+
+.cr-compte-form-header p {
+  color: var(--cr-compte-text-light);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Form Section */
+.cr-compte-form-section {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--cr-compte-border-color);
+}
+
+.cr-compte-form-section h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--cr-compte-text-color);
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.cr-compte-form-section h3::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background: var(--cr-compte-primary-color);
+}
+
+/* Form Group and Row */
+.cr-compte-form-group {
+  margin-bottom: 1rem;
+}
+
+.cr-compte-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.cr-compte-form-row .cr-compte-form-group {
+  min-width: 0;
+}
+
+/* Labels and Inputs */
+label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cr-compte-text-color);
+  letter-spacing: 0.01em;
+}
+
+.cr-compte-input-group {
+  display: flex;
+  width: 100%;
+}
+
+.cr-compte-input-group-text {
+  background: var(--cr-compte-bg-light);
+  border: 1px solid var(--cr-compte-border-color);
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  align-items: center;
+  color: var(--cr-compte-text-light);
+}
+
+.cr-compte-form-control {
+  flex: 1;
+  border: 1px solid var(--cr-compte-border-color);
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  background: white;
+  transition: var(--cr-compte-transition);
+  color: var(--cr-compte-text-color);
+}
+
+.cr-compte-form-control:focus {
+  outline: none;
+  border-color: var(--cr-compte-primary-color);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+}
+
+.cr-compte-form-control-lg {
+  padding: 0.7rem 0.9rem;
+  font-size: 1rem;
+}
+
+select.cr-compte-form-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.2 5.158C1.645 4.513 2.105 3.5 4.064 3.5h9.572a1 1 0 0 1 .753 1.659l-5.796 5.98a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  background-size: 14px;
+}
+
+/* Errors and Hints */
+.cr-compte-input-error {
+  color: var(--cr-compte-error-color);
+  font-size: 0.75rem;
+  margin-top: 0.3rem;
+  display: block;
+}
+
+.cr-compte-is-invalid {
+  border-color: var(--cr-compte-error-color) !important;
+}
+
+/* Form Options */
+.cr-compte-form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.75rem 0;
+}
+
+.cr-compte-remember-me {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--cr-compte-text-light);
+  cursor: pointer;
+}
+
+.cr-compte-remember-me input {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.cr-compte-forgot-password {
+  background: none;
+  border: none;
+  color: var(--cr-compte-primary-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--cr-compte-transition);
+}
+
+.cr-compte-forgot-password:hover {
+  color: var(--cr-compte-primary-dark);
+  text-decoration: none;
+}
+
+/* Buttons */
+.cr-compte-auth-btn {
+  width: 100%;
+  padding: 0.7rem;
+  border: none;
+  background: var(--cr-compte-primary-color);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: var(--cr-compte-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cr-compte-primary {
+  background: linear-gradient(to right, var(--cr-compte-primary-color), var(--cr-compte-primary-dark));
+}
+
+.cr-compte-auth-btn:hover {
+  background: var(--cr-compte-primary-dark);
+  transform: translateY(-1px);
+}
+
+.cr-compte-auth-btn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cr-compte-btn-loader {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+/* Form Footer */
+.cr-compte-form-footer {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--cr-compte-text-light);
+}
+
+.cr-compte-switch-form {
+  background: none;
+  border: none;
+  color: var(--cr-compte-primary-color);
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--cr-compte-transition);
+  padding: 0.2rem 0.4rem;
+}
+
+.cr-compte-switch-form:hover {
+  color: var(--cr-compte-primary-dark);
+  text-decoration: none;
+}
+
+/* Scrollable Form */
+.cr-compte-form-scroll {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 0.4rem;
+}
+
+.cr-compte-form-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.cr-compte-form-scroll::-webkit-scrollbar-track {
+  background: var(--cr-compte-bg-light);
+  border-radius: 8px;
+}
+
+.cr-compte-form-scroll::-webkit-scrollbar-thumb {
+  background: var(--cr-compte-border-color);
+  border-radius: 8px;
+}
+
+.cr-compte-form-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--cr-compte-text-light);
+}
+
+/* Dialog */
+.cr-compte-p-dialog {
+  border-radius: 10px;
+  box-shadow: var(--cr-compte-shadow);
+  overflow: hidden;
+}
+
+.cr-compte-p-dialog .p-dialog-header {
+  padding: 0.8rem 1.2rem;
+  background: linear-gradient(to right, var(--cr-compte-primary-color), var(--cr-compte-primary-dark));
+  color: white;
+  font-weight: 600;
+}
+
+.cr-compte-p-dialog .cr-compte-p-dialog-content {
+  padding: 1.2rem;
+  background: white;
+}
+
+.cr-compte-p-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.8rem 1.2rem;
+  background: var(--cr-compte-bg-light);
+}
+
+.cr-compte-bouton {
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--cr-compte-transition);
+  font-size: 0.9rem;
+}
+
+.cr-compte-bouton-plein {
+  background: var(--cr-compte-primary-color);
+  color: white;
+  border: none;
+}
+
+.cr-compte-bouton-plein:hover {
+  background: var(--cr-compte-primary-dark);
+  transform: translateY(-1px);
+}
+
+.cr-compte-bouton-transparent {
+  background: transparent;
+  border: 1px solid var(--cr-compte-border-color);
+  color: var(--cr-compte-text-color);
+}
+
+.cr-compte-bouton-transparent:hover {
+  background: var(--cr-compte-bg-light);
+  transform: translateY(-1px);
+}
+
+/* Animations */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cr-compte-auth-form {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cr-compte-main-title {
+    font-size: 1.75rem;
+    margin-bottom: 1.25rem;
   }
-  
-  .card {
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  .cr-compte-forms-container {
+    padding: 1rem;
   }
-  
-  .card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
+
+  .cr-compte-auth-form {
+    padding: 1rem;
   }
-  
-  .input-group {
-    margin-bottom: 15px;
+
+  .cr-compte-form-row {
+    grid-template-columns: 1fr;
   }
-  
+
+  .cr-compte-form-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .cr-compte-form-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .cr-compte-form-control {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.9rem;
+  }
+
+  .cr-compte-auth-btn {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .cr-compte-form-scroll {
+    max-height: 50vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .cr-compte-auth-container {
+    padding: 0.75rem;
+  }
+
+  .cr-compte-main-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .cr-compte-auth-form {
+    padding: 0.75rem;
+  }
+
+  .cr-compte-form-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .cr-compte-form-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .cr-compte-form-control {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .cr-compte-input-group-text {
+    padding: 0.5rem 0.7rem;
+  }
+
+  .cr-compte-auth-btn {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .cr-compte-p-dialog {
+    width: 90vw;
+  }
+
+  .cr-compte-bouton {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+}

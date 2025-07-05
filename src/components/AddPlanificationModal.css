@@ -1,0 +1,539 @@
+:root {
+  --primary-color: #F97316;
+  --primary-dark: #EA580C;
+  --primary-light: #FFF7ED;
+  --secondary-color: #6366F1;
+  --warning-color: #FBBF24;
+  --success-color: #10B981;
+  --danger-color: #EF4444;
+  --text-dark: #111827;
+  --text-medium: #6B7280;
+  --text-light: #9CA3AF;
+  --border-color: #D1D5DB;
+  --bg-light: #F3F4F6;
+  --bg-card: #FFFFFF;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 6px 28px rgba(0, 0, 0, 0.15);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.plan-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.plan-modal-container {
+  background: var(--bg-card);
+  border-radius: 20px;
+  width: 95%;
+  max-width: 960px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  animation: fadeSlideIn 0.4s ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.plan-modal-header {
+  padding: 24px 32px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 20px 20px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.plan-header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.plan-header-icon {
+  font-size: 2rem;
+  transition: var(--transition);
+}
+
+.plan-modal-header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.plan-close-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 1.5rem;
+}
+
+.plan-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.15);
+}
+
+.plan-modal-body {
+  padding: 32px;
+  flex: 1;
+  background: var(--bg-light);
+}
+
+.plan-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+}
+
+.plan-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.plan-form-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 1rem;
+}
+
+.plan-form-label i {
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  transition: var(--transition);
+}
+
+.plan-form-label i:hover {
+  transform: scale(1.1);
+}
+
+.plan-form-dropdown, .plan-form-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: var(--transition);
+  background: var(--bg-card);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.plan-form-dropdown:focus, .plan-form-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+  outline: none;
+}
+
+.plan-time-picker-group {
+  grid-column: span 2;
+}
+
+.plan-time-picker-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.plan-time-picker-container:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+.time-inputs-row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.time-input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.time-label {
+  font-size: 0.95rem;
+  color: var(--text-medium);
+  font-weight: 600;
+}
+
+.time-input {
+  padding: 14px 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: var(--transition);
+  background: var(--bg-card);
+}
+
+.time-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+  outline: none;
+}
+
+.plan-time-slots-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.plan-time-slot-item {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background: var(--bg-light);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+
+.plan-time-slot-item.selected {
+  background: var(--primary-light);
+  border: 2px solid var(--primary-color);
+  transform: translateY(-3px);
+}
+
+.plan-time-slot-item:hover {
+  background: var(--primary-light);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.plan-remove-slot-btn {
+  background: transparent;
+  border: none;
+  color: var(--danger-color);
+  cursor: pointer;
+  font-size: 1.3rem;
+  padding: 10px;
+  transition: var(--transition);
+}
+
+.plan-remove-slot-btn:hover {
+  transform: scale(1.2);
+}
+
+.plan-add-slot-btn {
+  margin-top: 16px;
+  font-size: 1rem;
+  padding: 14px 20px;
+  border-radius: 12px;
+  transition: var(--transition);
+  border: 2px dashed var(--primary-color);
+  color: var(--primary-color);
+}
+
+.plan-add-slot-btn:hover {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border-style: solid;
+}
+
+.intensity-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.intensity-slider {
+  flex: 1;
+  height: 12px;
+  -webkit-appearance: none;
+  background: linear-gradient(to right, var(--border-color) 0%, var(--primary-light) 100%);
+  border-radius: 8px;
+  outline: none;
+  transition: var(--transition);
+}
+
+.intensity-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  background: var(--primary-color);
+  border: 3px solid var(--bg-card);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: var(--transition);
+}
+
+.intensity-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.intensity-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  background: var(--primary-color);
+  border: 3px solid var(--bg-card);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: var(--transition);
+}
+
+.intensity-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.intensity-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.intensity-number-input {
+  width: 60px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  text-align: center;
+  background: var(--bg-card);
+  transition: var(--transition);
+}
+
+.intensity-number-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+  outline: none;
+}
+
+.intensity-unit {
+  font-size: 0.95rem;
+  color: var(--text-medium);
+}
+
+.intensity-control i {
+  color: #F59E0B;
+  font-size: 1.5rem;
+  transition: var(--transition);
+  animation: glow 1.5s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+.intensity-slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px 0;
+}
+
+.intensity-slider-container label {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 1rem;
+}
+
+.plan-time-display {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--bg-light);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+.time-display-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-label {
+  font-size: 0.9rem;
+  color: var(--text-medium);
+  font-weight: 600;
+}
+
+.time-value {
+  font-weight: 700;
+  color: var(--text-dark);
+  font-size: 1.1rem;
+}
+
+.plan-checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.plan-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1rem;
+  color: var(--text-dark);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.plan-checkbox-label i {
+  color: var(--primary-color);
+  font-size: 1.3rem;
+  transition: var(--transition);
+}
+
+.plan-checkbox-label:hover i {
+  transform: scale(1.1);
+}
+
+.plan-modal-footer {
+  padding: 24px 32px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.plan-cancel-btn {
+  background: transparent;
+  border: 2px solid var(--border-color);
+  color: var(--text-medium);
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.plan-cancel-btn:hover {
+  background: var(--bg-light);
+  color: var(--text-dark);
+  border-color: var(--primary-color);
+}
+
+.plan-submit-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.plan-submit-btn:hover {
+  background: var(--primary-dark);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .plan-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-time-picker-group {
+    grid-column: span 1;
+  }
+
+  .plan-modal-body {
+    padding: 24px;
+  }
+
+  .plan-modal-header {
+    padding: 20px;
+  }
+
+  .plan-modal-footer {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .plan-cancel-btn,
+  .plan-submit-btn {
+    width: 100%;
+    padding: 16px;
+  }
+
+  .time-inputs-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .plan-time-slot-item {
+    padding: 16px;
+  }
+
+  .intensity-control {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .intensity-slider {
+    width: 100%;
+  }
+
+  .intensity-input-wrapper {
+    margin-top: 8px;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+
+.plan-submit-btn:hover,
+.plan-time-slot-item:hover {
+  animation: pulse 0.5s ease;
+}
+
+.Toastify__toast-container {
+  z-index: 99999 !important;
+}

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import "./cssP/login.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "react-toastify/dist/ReactToastify.css"; // react-toastify styles
+import "react-toastify/dist/ReactToastify.css";
 import hommeImage from "../assets/homme.png";
 import hommeImage2 from "../assets/ajouter-un-utilisateur.png";
 import { Dialog } from "primereact/dialog";
@@ -32,7 +32,6 @@ function Login() {
     cin: "",
   });
 
-  // Reusable toast function
   const showToast = (type, message, options = {}) => {
     const toastOptions = {
       position: "top-center",
@@ -63,7 +62,6 @@ function Login() {
     }
   };
 
-  // Handle input changes
   const handleChange = (e, type) => {
     if (type === "login") {
       setLoginData({ ...loginData, [e.target.name]: e.target.value });
@@ -72,7 +70,6 @@ function Login() {
     }
   };
 
-  // Handle login
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -107,7 +104,6 @@ function Login() {
     }
   };
 
-  // Handle registration
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -211,7 +207,6 @@ function Login() {
     }
   };
 
-  // Handle forgot password
   const handleForgotPassword = () => {
     setDisplayDialog(true);
   };
@@ -261,7 +256,6 @@ function Login() {
             isActive ? "active" : ""
           }`}
         >
-          {/* Formulaire de Connexion */}
           <div className="col-md-6 right-box">
             <form onSubmit={handleLogin}>
               <div className="header-text mb-4">
@@ -339,7 +333,6 @@ function Login() {
             </form>
           </div>
 
-          {/* Formulaire d'inscription */}
           <div className="col-md-6 right-box">
             <form onSubmit={handleRegister}>
               <div className="header-text mb-4">
