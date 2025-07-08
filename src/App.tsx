@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import 'primereact/resources/themes/lara-light-blue/theme.css';
 import 'primereact/resources/primereact.min.css'; 
 import 'primeicons/primeicons.css';
-import Login from './pages/Login';
 import Validationuser from './pages/Validationuser';
 import TestPopup from './pages/Test';
 import MotpasseM from "./pages/MotpasseM";
